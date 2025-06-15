@@ -1,6 +1,6 @@
 # Sierramar API
 
-Backend RESTful API for Sierramar residential community management system. This repository contains the server-side application that powers the [sierramar_pwa](https://github.com/juankypunk/sierramar_pwa) frontend.
+RESTful API for Sierramar residential community management system. This repository contains the server-side application that powers the [sierramar_pwa](https://github.com/juankypunk/sierramar_pwa) frontend.
 
 ## Overview
 
