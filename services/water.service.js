@@ -142,6 +142,7 @@ class WaterService {
     return result.rows.map(row => ({
       fecha: row.fecha ? row.fecha : '',
       orden: row.orden,
+      estado: row.estado,
       e: row.e,
       id_parcela: row.id_parcela,
       titular: row.titular || '',
@@ -201,7 +202,6 @@ class WaterService {
       "UPDATE agua SET estado=$1 WHERE fecha = (SELECT MAX(fecha) FROM agua WHERE estado <> 'A')",
       [estado]
     );
-    console.log('Resultado de la actualización protegida:', result.rowCount);
     return result.rows;
   }
 
