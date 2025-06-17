@@ -387,7 +387,10 @@ class WaterService {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2 
         }).format(row.importe) : '',
-        Domiciliado: row.domiciliado ? 'Sí' : 'No',
+        Domiciliado: row.domiciliado ? new Intl.NumberFormat('es-ES', { 
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2 
+        }).format(row.domiciliado) : '',
         Concepto: row.concepto || '',
         Ult_Modif: row.ult_modif || '',
         User_Modif: row.user_modif || ''
