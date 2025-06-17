@@ -330,22 +330,28 @@ class WaterService {
 
 
 
-  async getWaterCurrentRemittancesCSV(estado, domiciliado, reset_filter) {
+  async getWaterCurrentRemittancesCSV(ordena_columna,domicilia_bco,reset_filter) {
     try {
-      // Query base
-      const baseQuery = "SELECT r_id_parcela AS id_parcela,to_char(r_fecha,'DD-MM-YYYY') AS fecha,r_estado AS estado,r_titular_cc AS titular,r_bic AS bic,r_iban AS iban,r_l1 AS l1,r_l2 AS l2,r_m3 AS m3,r_t1 AS T1, r_t2 AS T2,r_pm3 AS PVPm3, \
+        if(ordena_columna=='r_m3'){
+        var orden="ORDER BY r_m3 DESC";
+      }else{
+        var orden="ORDER BY r_id_parcela ASC";
+      }
+
+      if(reset_filter==false){
+        if(domicilia_bco==true){
+          var where_condition="WHERE r_domicilia_bco='t'";
+        }else{
+          var where_condition="WHERE r_domicilia_bco='f'";
+        }
+      }
+      const query = `SELECT r_id_parcela AS id_parcela,to_char(r_fecha,'DD-MM-YYYY') AS fecha,r_estado AS estado,r_titular_cc AS titular,r_bic AS bic,r_iban AS iban,r_l1 AS l1,r_l2 AS l2,r_m3 AS m3,r_t1 AS T1, r_t2 AS T2,r_pm3 AS PVPm3, \
         r_f_a AS f_a,r_f_b AS f_b, r_f_c AS f_c,r_m3_a AS m3_t1,r_m3_b AS m3_t2,r_m3_c AS m3_t3,r_p_m3_a AS p_m3_a,r_p_m3_b AS p_m3_b,r_p_m3_c AS p_m3_c, \
-        round(r_total,2) AS importe,r_domiciliado AS domiciliado,r_resumen AS concepto, \
-        to_char(r_ult_modif,'DD-MM-YYYY HH24:MI') AS ult_modif,r_user_modif AS user_modif FROM detalla_remesa_agua()";
-      // Construir query según filtros
-      const whereCondition = reset_filter 
-        ? "" 
-        : ` WHERE r_estado = ANY ($1) AND r_domiciliado=$2`;
-      const query = `${baseQuery} ${whereCondition} ORDER BY r_id_parcela`;
-      // Ejecutar query con o sin parámetros
-      const params = reset_filter ? [] : [estado, domiciliado];
-      const result = await pool.query(query, params);
-      console.log('WaterCurrentRemittances (rows):', result.rowCount);
+        r_total AS importe,r_domiciliado AS domiciliado,r_resumen AS concepto,to_char(r_ult_modif,'DD-MM-YYYY HH24:MI') AS ult_modif,r_user_modif AS user_modif\
+        FROM detalla_remesa_agua() ${where_condition} ${orden}`;
+        const result = await pool.query(query);
+        console.log('WaterCurrentRemittances (rows):', result.rowCount);
+     
       // Transformar datos para CSV     
       return result.rows.map(row => ({
         Parcela: row.id_parcela,
