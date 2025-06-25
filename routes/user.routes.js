@@ -26,6 +26,7 @@ router.get('/', (req, res) => {
 
 router.get('/:id', authenticateJWT, userController.getUserById);
 
+router.put('/:id/update', authenticateJWT, userController.updateUserById);
 
   
 router.get('/admin', authenticateJWT, checkRole('admin'), (req, res) => {
