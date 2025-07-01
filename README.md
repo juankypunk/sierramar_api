@@ -4,7 +4,7 @@ RESTful API for Sierramar residential community management system. This reposito
 
 ## Overview
 
-Sierramar API provides the backend services for managing residential communities, including member fees, water consumption billing, and employee time tracking..
+Sierramar API provides the backend services for managing residential communities, including member fees, water consumption billing, employee time tracking...
 
 ## Features
 

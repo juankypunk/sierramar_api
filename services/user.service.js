@@ -27,8 +27,19 @@ class UserService {
   }
 
   
+  async updateUserById(userId, userData) {
+    const { name, email } = userData;
+    const result = await pool.query(
+      "UPDATE users SET name = $1, email = $2 WHERE id = $3 RETURNING *",
+      [name, email, userId]
+    );
+    if (result.rows.length === 0) {
+      throw new Error('No se pudo actualizar el usuario');
+    }
+    return result.rows[0];
+  } 
 
-
+  
 
 }
 

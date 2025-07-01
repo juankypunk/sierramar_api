@@ -22,5 +22,15 @@ exports.getUserById = async (req, res) => {
   }
 }
 
+exports.updateUserById = async (req, res) => {
+  try {
+    const userId = req.params.id
+    const userData = req.body
+    const updatedUser = await userService.updateUserById(userId, userData)
+    res.json(updatedUser)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+}
 
 // ... resto de controladores
