@@ -306,6 +306,7 @@ class WaterService {
         m3_t1: row.m3_t1 || '',
         m3_t2: row.m3_t2 || '',
         m3_t3: row.m3_t3 || '',
+        pvpm3: row.pvpm3 || '',
         p_m3_a: row.p_m3_a  || '',
         p_m3_b: row.p_m3_b  || '',
         p_m3_c: row.p_m3_c  || '',
@@ -371,6 +372,10 @@ class WaterService {
         'M3 T1': row.m3_t1 || '',
         'M3 T2': row.m3_t2 || '',
         'M3 T3': row.m3_t3 || '',
+        'PVP_M3': row.pvpm3  ? new Intl.NumberFormat('es-ES', { 
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2 
+        }).format(row.pvpm3) : '' ,
         'PVP_M3 A': row.p_m3_a  ? new Intl.NumberFormat('es-ES', { 
           minimumFractionDigits: 2,
           maximumFractionDigits: 2 
