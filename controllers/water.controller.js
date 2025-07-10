@@ -13,6 +13,7 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 const WaterService = require('../services/water.service')
 const csv = require('@fast-csv/format');
 const path = require('path');
+const { send } = require('process');
 
 exports.getWaterCurrentRemittancesById = async (req, res) => {
   try {
@@ -198,6 +199,87 @@ exports.getWaterCurrentRemittances = async (req, res) => {
     const {ordena_columna,domicilia_bco,reset_filter} = req.body;
     const remittances = await WaterService.getWaterCurrentRemittances(ordena_columna,domicilia_bco,reset_filter);
     res.json(remittances);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+exports.getWaterCurrentRemittancesVAT = async (req, res) => {
+  try {
+    const {selected_ids,sif_token} = req.body;
+    console.log('selected_ids:', selected_ids);
+    console.log('sif_token:', sif_token);
+    const remittancesVAT = await WaterService.getWaterCurrentRemittancesVAT(selected_ids);
+    // Crear array de facturas con líneas solo para tramos con consumo
+    const invoices = remittancesVAT.map(remittance => {
+      const lines = [];
+      if (remittance.m3_1 > 0) {
+        lines.push({
+          product: "Consumo de agua en tramo T1 (m3)",
+          quantity: remittance.m3_1,
+          unit_price: 0.61,
+          tax_base: remittance.subtotal_t1,
+          tax_pctge: 10,
+          tax_amount: remittance.tax_amount_t1,
+          total: remittance.total_t1
+        });
+      }
+      if (remittance.m3_2 > 0) {
+        lines.push({
+          product: "Consumo de agua en tramo T2 (m3)",
+          quantity: remittance.m3_2,
+          unit_price: 0.76,
+          tax_base: remittance.subtotal_t2,
+          tax_pctge: 10,
+          tax_amount: remittance.tax_amount_t2,
+          total: remittance.total_t2
+        });
+      }
+      if (remittance.m3_3 > 0) {
+        lines.push({
+          product: "Consumo de agua en tramo T3 (m3)",
+          quantity: remittance.m3_3,
+          unit_price: 0.91,
+          tax_base: remittance.subtotal_t3,
+          tax_pctge: 10,
+          tax_amount: remittance.tax_amount_t3,
+          total: remittance.total_t3
+        });
+      }
+      return {
+        invoicenumber: "",
+        emission: "2025-07-09",
+        due: "2025-07-09",
+        customer_id: remittance.id_socio,
+        contractid: "",
+        total: remittance.total,
+        comments: remittance.comments,
+        lines
+      };
+    });
+
+    const invoice_data = JSON.stringify({ invoices });
+
+    console.log('Enviando datos al SIF:', invoice_data);
+
+    const sif_url= process.env.SIF_URL + '/api/invoices';
+    const response = await fetch(sif_url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${sif_token}`
+      },
+      body: invoice_data
+    });
+
+    const sifResponse = await response.json();
+    console.log('SIF response:', sifResponse);
+
+    res.json({
+      remittances: remittancesVAT,
+      sifResponse
+    });
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

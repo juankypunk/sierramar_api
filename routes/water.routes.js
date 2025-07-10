@@ -49,6 +49,7 @@ router.post('/receipt/:id', authenticateJWT, waterController.generateWaterReceip
 router.post('/currentremittances', authenticateJWT, waterController.getWaterCurrentRemittances)
 router.post('/currentremittances/parcel', authenticateJWT, waterController.getWaterCurrentRemittancesById) 
 router.post('/currentremittances/csv', authenticateJWT, waterController.getWaterCurrentRemittancesCSV)
+router.post('/currentremittances/vat', authenticateJWT, waterController.getWaterCurrentRemittancesVAT)
 router.get('/currentremittances/statistics',authenticateJWT, waterController.getWaterStatisticsCurrentRemittances)
 router.get('/statistics/:id/:years', authenticateJWT, waterController.getWaterStatisticsById) 
 router.get('/statistics/current', authenticateJWT, waterController.getWaterStatisticsCurrent)
