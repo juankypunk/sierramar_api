@@ -311,11 +311,14 @@ class WaterService {
         p_m3_a: row.p_m3_a  || '',
         p_m3_b: row.p_m3_b  || '',
         p_m3_c: row.p_m3_c  || '',
-        importe: row.importe || '',
-        domiciliado: row.domiciliado ? new Intl.NumberFormat('es-ES', { 
+        importe: row.importe ? new Intl.NumberFormat('es-ES', {
           style: 'currency',
-          currency: 'EUR'  
-        }).format(row.domiciliado) : '',      
+          currency: 'EUR'
+        }).format(row.importe) : '',
+        domiciliado: row.domiciliado ? new Intl.NumberFormat('es-ES', {
+          style: 'currency',
+          currency: 'EUR'
+        }).format(row.domiciliado) : '',
         concepto: row.concepto || '',
         ult_modif: row.ult_modif || '',
         user_modif: row.user_modif || ''

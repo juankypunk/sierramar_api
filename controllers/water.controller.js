@@ -215,9 +215,9 @@ exports.getWaterCurrentRemittancesVAT = async (req, res) => {
       const lines = [];
       if (remittance.m3_1 > 0) {
         lines.push({
-          product: "Consumo de agua en tramo T1 (m3)",
+          product: "Consumo de agua en tramo T1 (1-125 m3)",
           quantity: remittance.m3_1,
-          unit_price: 0.61,
+          unit_price: 0.605,
           tax_base: remittance.subtotal_t1,
           tax_pctge: 10,
           tax_amount: remittance.tax_amount_t1,
@@ -226,9 +226,9 @@ exports.getWaterCurrentRemittancesVAT = async (req, res) => {
       }
       if (remittance.m3_2 > 0) {
         lines.push({
-          product: "Consumo de agua en tramo T2 (m3)",
+          product: "Consumo de agua en tramo T2 (126-200 m3)",
           quantity: remittance.m3_2,
-          unit_price: 0.76,
+          unit_price: 0.757,
           tax_base: remittance.subtotal_t2,
           tax_pctge: 10,
           tax_amount: remittance.tax_amount_t2,
@@ -237,9 +237,9 @@ exports.getWaterCurrentRemittancesVAT = async (req, res) => {
       }
       if (remittance.m3_3 > 0) {
         lines.push({
-          product: "Consumo de agua en tramo T3 (m3)",
+          product: "Consumo de agua en tramo T3 (+200 m3)",
           quantity: remittance.m3_3,
-          unit_price: 0.91,
+          unit_price: 0.908,
           tax_base: remittance.subtotal_t3,
           tax_pctge: 10,
           tax_amount: remittance.tax_amount_t3,
@@ -248,8 +248,8 @@ exports.getWaterCurrentRemittancesVAT = async (req, res) => {
       }
       return {
         invoicenumber: "",
-        emission: "2025-07-09",
-        due: "2025-07-09",
+        emission: "2025-07-10",
+        due: "2025-07-10",
         customer_id: remittance.id_socio,
         contractid: "",
         total: remittance.total,
