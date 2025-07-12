@@ -332,7 +332,7 @@ class WaterService {
 
   async getWaterCurrentRemittancesVAT(selected_ids) {
     try {
-      const query = `SELECT * FROM vista_agua_iva WHERE id = ANY ($1) ORDER BY id_parcela`;
+      const query = `SELECT * FROM vista_agua_iva WHERE id = ANY ($1) AND m3 > 0 ORDER BY id_parcela`;
       const result = await pool.query(query, [selected_ids]);
       return result.rows; 
     } catch (error) {

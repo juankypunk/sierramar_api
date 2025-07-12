@@ -210,6 +210,7 @@ exports.getWaterCurrentRemittancesVAT = async (req, res) => {
     console.log('selected_ids:', selected_ids);
     console.log('sif_token:', sif_token);
     const remittancesVAT = await WaterService.getWaterCurrentRemittancesVAT(selected_ids);
+    
     // Crear array de facturas con líneas solo para tramos con consumo
     const invoices = remittancesVAT.map(remittance => {
       const lines = [];
@@ -217,9 +218,9 @@ exports.getWaterCurrentRemittancesVAT = async (req, res) => {
         lines.push({
           product: "Consumo de agua en tramo T1 (1-125 m3)",
           quantity: remittance.m3_1,
-          unit_price: 0.605,
+          unit_price: remittance.pm3_t1,
           tax_base: remittance.subtotal_t1,
-          tax_pctge: 10,
+          tax_pctge: remittance.iva,
           tax_amount: remittance.tax_amount_t1,
           total: remittance.total_t1
         });
@@ -228,9 +229,9 @@ exports.getWaterCurrentRemittancesVAT = async (req, res) => {
         lines.push({
           product: "Consumo de agua en tramo T2 (126-200 m3)",
           quantity: remittance.m3_2,
-          unit_price: 0.757,
+          unit_price: remittance.pm3_t2,
           tax_base: remittance.subtotal_t2,
-          tax_pctge: 10,
+          tax_pctge: remittance.iva,
           tax_amount: remittance.tax_amount_t2,
           total: remittance.total_t2
         });
@@ -239,17 +240,17 @@ exports.getWaterCurrentRemittancesVAT = async (req, res) => {
         lines.push({
           product: "Consumo de agua en tramo T3 (+200 m3)",
           quantity: remittance.m3_3,
-          unit_price: 0.908,
+          unit_price: remittance.pm3_t3,
           tax_base: remittance.subtotal_t3,
-          tax_pctge: 10,
+          tax_pctge: remittance.iva,
           tax_amount: remittance.tax_amount_t3,
           total: remittance.total_t3
         });
       }
       return {
         invoicenumber: "",
-        emission: "2025-07-10",
-        due: "2025-07-10",
+        emission: "2025-07-11",
+        due: "2025-07-11",
         customer_id: remittance.id_socio,
         contractid: "",
         total: remittance.total,
