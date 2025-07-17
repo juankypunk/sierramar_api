@@ -132,7 +132,7 @@ class ResidentService {
   }
 
 async getResidentByName(chunk) {
-    const result = await pool.query("SELECT * FROM resident_info($1)", [chunk]);
+    const result = await pool.query("SELECT * FROM resident_info($1) WHERE FALSE = ANY (SELECT unnest(id_parcela) IS NULL)", [chunk]);
     if (result.rows.length === 0) {
       throw new Error('No se encontraron residentes con ese nombre');
     }
