@@ -189,8 +189,8 @@ async setResidentContactByParcelId(id_parcela,titular,titular2,email,email2,domi
   }
 
 async getResidentBankByParcelId(id_parcela) {
-    const result = await pool.query("SELECT *,to_char(fecha_mandato,'YYYY-MM-DD') AS fecha_mandato FROM vista_socios_bank WHERE id_parcela = $1", [id_parcela]);
-    
+    const result = await pool.query("SELECT *,to_char(fecha_mandato,'YYYY-MM-DD') AS fecha_mandato,to_char(fecha_mandato_agua,'YYYY-MM-DD') AS fecha_mandato_agua \
+      FROM vista_socios_bank WHERE id_parcela = $1", [id_parcela]);
     return result.rows[0]; // Devuelve null si no se encuentra la parcela
   }
 
