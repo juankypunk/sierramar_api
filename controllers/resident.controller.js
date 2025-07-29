@@ -152,7 +152,10 @@ exports.getResidentBankByParcelId = async (req, res) => {
   try {
     const id_parcela = req.params.id_parcela
     const bank = await residentService.getResidentBankByParcelId(id_parcela)
-    res.status(200).json(bank)
+    //console.log('referencia_mandato:', bank.referencia_mandato)
+    const mandatos = await residentService.getMandatosByParcelId(bank.referencia_mandato)
+    //console.log('mandatos:', mandatos)
+    res.status(200).json({ bank, mandatos })
   } catch (error) {
     res.status(500).json({ error: error.message })
   }

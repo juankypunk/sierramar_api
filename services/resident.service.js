@@ -194,6 +194,11 @@ async getResidentBankByParcelId(id_parcela) {
     return result.rows[0]; // Devuelve null si no se encuentra la parcela
   }
 
+async getMandatosByParcelId(referencia_mandato) {
+    const result = await pool.query("SELECT *,to_char(ultimo_cobro,'DD-MM-YYYY') AS ultimo_cobro FROM mandatos WHERE at_01 = $1", [referencia_mandato]);
+    return result.rows;
+}
+
 async setResidentBankByParcelId(id_parcela,titular_cc_cuota,bic_cuota,iban_cuota,titular_cc_agua,bic_agua,iban_agua,fecha_mandato,nif_titular_cc_agua) {
     const result = await pool.query("UPDATE socios SET titular_cc_cuota=$2, bic_cuota=$3,iban_cuota=$4, \
         titular_cc_agua=$5,bic_agua=$6,iban_agua=$7,fecha_mandato=$8,nif_titular_cc_agua=$9 WHERE id_parcela = $1",
