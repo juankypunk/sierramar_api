@@ -356,7 +356,7 @@ async getResidentsCurrentDue(domicilia_bco, reset_filter) {
 
 
   async getResidentsSpecialRemittances() {
-    const result = await pool.query("SELECT *,id_remesa as id, to_char(fecha_mandato,'YYYY-MM-DD') AS fecha_mandato FROM remesas_especiales");
+    const result = await pool.query("SELECT *,id_remesa as id, to_char(fecha_mandato,'YYYY-MM-DD') AS fecha_mandato FROM vista_remesas_especiales");
     if (result.rows.length === 0) {
       throw new Error('No se encontraron remesas especiales');
     }
