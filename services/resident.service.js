@@ -199,16 +199,23 @@ async getMandatosByParcelId(referencia_mandato) {
     return result.rows;
 }
 
-async setResidentBankByParcelId(id_parcela,titular_cc_cuota,bic_cuota,iban_cuota,titular_cc_agua,bic_agua,iban_agua,fecha_mandato,nif_titular_cc_agua) {
+async setResidentBankByParcelId(id_parcela,titular_cc_cuota,bic_cuota,iban_cuota,titular_cc_agua,bic_agua,iban_agua,fecha_mandato,fecha_mandato_agua,nif_titular_cc_agua) {
     const result = await pool.query("UPDATE socios SET titular_cc_cuota=$2, bic_cuota=$3,iban_cuota=$4, \
-        titular_cc_agua=$5,bic_agua=$6,iban_agua=$7,fecha_mandato=$8,nif_titular_cc_agua=$9 WHERE id_parcela = $1",
-       [id_parcela,titular_cc_cuota,bic_cuota,iban_cuota,titular_cc_agua,bic_agua,iban_agua,fecha_mandato,nif_titular_cc_agua]);
+        titular_cc_agua=$5,bic_agua=$6,iban_agua=$7,fecha_mandato=$8,fecha_mandato_agua=$9,nif_titular_cc_agua=$10 WHERE id_parcela = $1",
+       [id_parcela,titular_cc_cuota,bic_cuota,iban_cuota,titular_cc_agua,bic_agua,iban_agua,fecha_mandato,fecha_mandato_agua,nif_titular_cc_agua]);
     if (result.rowCount === 0) {
       throw new Error('No se pudo actualizar el banco para la parcela especificada');
     }
     return { message: 'Banco actualizado correctamente' };
   }
 
+async cancelResidentBankMandateByParcelId(referencia_mandato) {
+    const result = await pool.query("UPDATE mandatos SET estado='cancelado' WHERE at_01 = $1 RETURNING *", [referencia_mandato]);
+    if (!result) {
+      throw new Error('No se pudo cancelar el mandato para la parcela especificada');
+    }
+    return { message: 'Mandato cancelado correctamente' };
+}
 
 async getResidentsCurrentDue(domicilia_bco, reset_filter) {
   const query_unfiltered = "SELECT e,to_char(fecha,'DD-MM-YYYY') AS fecha,id_parcela,titular,estado,cuota,dto,domiciliado,domicilia_bco \
