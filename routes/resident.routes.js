@@ -47,6 +47,7 @@ router.post('/currentdues/newdate', authenticateJWT, residentController.setResid
 router.post('/dues/history', authenticateJWT,residentController.getResidentsDuesHistory)
 router.get('/:id_parcela/dues', authenticateJWT, residentController.getResidentDuesByParcelId)
 router.get('/:id_parcela/currentdue', authenticateJWT, residentController.getResidentCurrentDuesByParcelId)
+router.post('/:id_parcela/currentdue', authenticateJWT, residentController.setResidentCurrentDuesByParcelId)
 router.post('/:id_parcela/receipt', authenticateJWT, residentController.getResidentReceiptByParcelId)
 
 

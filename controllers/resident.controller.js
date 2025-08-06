@@ -67,6 +67,17 @@ exports.getResidentCurrentDuesByParcelId = async (req, res) => {
   }
 }
 
+exports.setResidentCurrentDuesByParcelId = async (req, res) => {
+  try {
+    const id_parcela = req.params.id_parcela 
+    const { cuota,dto,domicilia_bco,fecha } = req.body
+    const currentDue =  await residentService.setResidentCurrentDuesByParcelId(id_parcela,cuota,dto,domicilia_bco,fecha)
+    res.json(currentDue)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+}
+
 exports.getResidentReceiptByParcelId = async (req, res) => {
   try {
     const id_parcela = req.params.id_parcela
@@ -164,7 +175,7 @@ exports.getResidentBankByParcelId = async (req, res) => {
 exports.setResidentBankByParcelId = async (req, res) => {
   try {
     const id_parcela = req.params.id_parcela
-    const { titular_cc_cuota,bic_cuota,iban_cuota,titular_cc_agua,bic_agua,iban_agua,fecha_mandato,fecha_mandato_agua,nif_titular_cc_agua,referencia_mandato } = req.body
+    const { titular_cc_cuota,bic_cuota,iban_cuota,titular_cc_agua,bic_agua,iban_agua,fecha_mandato,fecha_mandato_agua,nif_titular_cc_agua } = req.body
     const result = await residentService
       .setResidentBankByParcelId(id_parcela,titular_cc_cuota,bic_cuota,iban_cuota,titular_cc_agua,bic_agua,iban_agua,fecha_mandato,fecha_mandato_agua,nif_titular_cc_agua)
     if (!result) {
@@ -191,6 +202,7 @@ exports.getResidentsCurrentDue = async (req, res) => {
     res.status(500).json({ error: error.message })
   }
 } 
+
 
 exports.getResidentsCurrentDueCSV = async (req, res) => {
   try {

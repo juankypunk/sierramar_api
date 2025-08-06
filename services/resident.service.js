@@ -73,6 +73,18 @@ class ResidentService {
     return result.rows[0];
   }
 
+  async setResidentCurrentDuesByParcelId(id_parcela,cuota,dto,domicilia_bco,fecha) {
+    const result = await pool.query("UPDATE cuotas SET cuota=$2,dto=$3,domicilia_bco=$4 \
+            WHERE id_parcela = $1 AND fecha=$5 AND estado='R'",
+       [id_parcela,cuota,dto,domicilia_bco,fecha]);
+    if(result.rowCount === 0){
+      throw new Error('No se pudo actualizar la cuota para la parcela especificada');
+    }
+    return result.rows[0]; 
+  }
+
+    
+
   async generateResidentReceiptByParcelId(id_parcela,fecha,cuota,dto,domiciliado) {
     console.log('id_parcela', id_parcela);
     console.log('fecha', fecha);
