@@ -175,9 +175,35 @@ exports.getResidentBankByParcelId = async (req, res) => {
 exports.setResidentBankByParcelId = async (req, res) => {
   try {
     const id_parcela = req.params.id_parcela
-    const { titular_cc_cuota,bic_cuota,iban_cuota,titular_cc_agua,bic_agua,iban_agua,fecha_mandato,fecha_mandato_agua,nif_titular_cc_agua } = req.body
-    const result = await residentService
-      .setResidentBankByParcelId(id_parcela,titular_cc_cuota,bic_cuota,iban_cuota,titular_cc_agua,bic_agua,iban_agua,fecha_mandato,fecha_mandato_agua,nif_titular_cc_agua)
+    let {
+      titular_cc_cuota,
+      bic_cuota,
+      iban_cuota,
+      titular_cc_agua,
+      bic_agua,
+      iban_agua,
+      fecha_mandato,
+      fecha_mandato_agua,
+      nif_titular_cc_agua,
+      referencia_mandato
+    } = req.body
+
+    // Asignar null si no hay valor
+    fecha_mandato = fecha_mandato || null;
+    fecha_mandato_agua = fecha_mandato_agua || null;
+
+    const result = await residentService.setResidentBankByParcelId(
+      id_parcela,
+      titular_cc_cuota,
+      bic_cuota,
+      iban_cuota,
+      titular_cc_agua,
+      bic_agua,
+      iban_agua,
+      fecha_mandato,
+      fecha_mandato_agua,
+      nif_titular_cc_agua
+    );
     if (!result) {
       return res.status(404).json({ message: 'No se encontró la parcela o no se pudo actualizar el banco' });
     }
