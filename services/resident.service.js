@@ -207,7 +207,8 @@ async getResidentBankByParcelId(id_parcela) {
   }
 
 async getMandatosByParcelId(referencia_mandato) {
-    const result = await pool.query("SELECT *,to_char(ultimo_cobro,'DD-MM-YYYY') AS ultimo_cobro FROM mandatos WHERE at_01 = $1", [referencia_mandato]);
+    const result = await pool.query("SELECT at_01 AS referencia_mandato,to_char(primer_cobro,'DD-MM-YYYY') AS primer_cobro,\
+      to_char(ultimo_cobro,'DD-MM-YYYY') AS ultimo_cobro,estado,motivo_cancelacion FROM mandatos WHERE at_01 = $1", [referencia_mandato]);
     return result.rows;
 }
 
