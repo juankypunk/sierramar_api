@@ -211,6 +211,10 @@ exports.getWaterCurrentRemittancesVAT = async (req, res) => {
     console.log('sif_token:', sif_token);
     const remittancesVAT = await WaterService.getWaterCurrentRemittancesVAT(selected_ids);
     
+     // Obtener fecha actual en formato YYYY-MM-DD
+    const today = new Date().toISOString().slice(0, 10);
+
+
     // Crear array de facturas con líneas solo para tramos con consumo
     const invoices = remittancesVAT.map(remittance => {
       const lines = [];
@@ -249,8 +253,8 @@ exports.getWaterCurrentRemittancesVAT = async (req, res) => {
       }
       return {
         invoicenumber: "",
-        emission: "2025-07-11",
-        due: "2025-07-11",
+        emission: today,
+        due: today,
         customer_id: remittance.id_socio,
         contractid: "",
         total: remittance.total,
