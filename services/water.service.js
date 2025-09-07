@@ -30,7 +30,7 @@ class WaterService {
 
   async getWaterStatisticsById(id, years) {
     const result = await pool.query(
-      "SELECT to_char(fecha,'Mon-YYYY') AS fecha_f, fecha, m3, avg FROM vista_consumo WHERE id_parcela = $1 AND age(fecha) <= $2 ORDER BY fecha DESC",
+      "SELECT to_char(fecha,'Mon-YYYY') AS fecha_f, fecha, m3, avg, mediana, stddev FROM vista_consumo WHERE id_parcela = $1 AND age(fecha) <= $2 ORDER BY fecha DESC",
       [id, years]
     );
     return result.rows;
@@ -108,7 +108,7 @@ class WaterService {
 
 
   async getCurrentStatistics() {
-    const result = await pool.query("SELECT to_char(fecha,'DD-MM-YYYY') AS lectura,to_char(fecha,'YYYY(TQ)') AS trimestre,fecha,m3,max,min,avg,stddev,importe,domiciliado FROM estadistica_agua WHERE age(fecha) <= '5 years' ORDER BY fecha DESC",[]);
+    const result = await pool.query("SELECT to_char(fecha,'DD-MM-YYYY') AS lectura,to_char(fecha,'YYYY(TQ)') AS trimestre,fecha,m3,max,min,avg,mediana,stddev,importe,domiciliado FROM estadistica_agua WHERE age(fecha) <= '5 years' ORDER BY fecha DESC",[]);
     return result.rows;
   }
 
@@ -116,7 +116,7 @@ class WaterService {
   async getWaterStatisticsCurrentRemittances() {
     try {
       const result = await pool.query(
-      "SELECT to_char(fecha,'DD-MM-YYYY') AS lectura,fecha,m3,max,min,avg,stddev,importe,domiciliado \
+      "SELECT to_char(fecha,'DD-MM-YYYY') AS lectura,fecha,m3,max,min,avg,mediana,stddev,importe,domiciliado \
         FROM estadistica_agua WHERE fecha = (SELECT MAX(fecha) FROM agua)"
       );
       return result.rows;
@@ -129,10 +129,10 @@ class WaterService {
 
   async getCurrentReading(estado,averiado,inactivo,domicilia_bco,reset_filter) {
     const query_unfiltered = "SELECT e,to_char(fecha,'DD-MM-YYYY') AS fecha,orden,id_parcela,titular,estado,\
-      l1,l2,m3,c,avg,stddev,averiado,inactivo,domicilia_bco,importe,notas \
+      l1,l2,m3,c,avg,stddev,mediana,averiado,inactivo,domicilia_bco,importe,notas \
       FROM vista_lectura WHERE estado = ANY ($1) ORDER BY id_parcela";
     const query_filtered = "SELECT e,to_char(fecha,'DD-MM-YYYY') AS fecha,orden,id_parcela,titular,estado,\
-      l1,l2,m3,c,avg,stddev,averiado,inactivo,domicilia_bco,importe,notas \
+      l1,l2,m3,c,avg,stddev,mediana,averiado,inactivo,domicilia_bco,importe,notas \
       FROM vista_lectura WHERE estado = ANY ($1) AND averiado=$2 AND inactivo=$3 AND domicilia_bco=$4 ORDER BY id_parcela"; 
     
     const query = reset_filter ? query_unfiltered : query_filtered;
@@ -151,6 +151,8 @@ class WaterService {
       m3: row.m3 || '',
       c: row.c || '',
       avg: new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.avg) || '',
+      mediana: new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.mediana) || '',
+      stddev: new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.stddev) || '',
       importe: row.importe ? new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(row.importe) : null,
       notas: row.notas
     }));
@@ -159,14 +161,14 @@ class WaterService {
 
   
   async getCurrentReadingRoute() {  
-    const result = await pool.query("SELECT e,to_char(fecha,'DD-MM-YYYY') AS fecha,orden,id_parcela,titular,estado,l1,l2,m3,c,avg,stddev,averiado,inactivo,domicilia_bco,importe,notas FROM vista_lectura ORDER BY id_parcela", []);
+    const result = await pool.query("SELECT e,to_char(fecha,'DD-MM-YYYY') AS fecha,orden,id_parcela,titular,estado,l1,l2,m3,c,avg,stddev,mediana,averiado,inactivo,domicilia_bco,importe,notas FROM vista_lectura ORDER BY id_parcela", []);
     return result.rows;
   }
 
 
   async getWaterCurrentReadingById(id) {
     const result = await pool.query(
-      "SELECT e,c,id_parcela,orden,titular,to_char(fecha,'DD-MM-YYYY') AS fecha,estado,l1,l2,m3,avg,averiado,inactivo,notas,domicilia_bco \
+      "SELECT e,c,id_parcela,orden,titular,to_char(fecha,'DD-MM-YYYY') AS fecha,estado,l1,l2,m3,avg,mediana,stddev,averiado,inactivo,notas,domicilia_bco \
         FROM vista_lectura WHERE id_parcela=$1 and fecha = (SELECT MAX(fecha) FROM agua)",
       [id]
     );
@@ -230,7 +232,7 @@ class WaterService {
     try {
     // Query base
     const baseQuery = "SELECT e,to_char(fecha,'DD-MM-YYYY') AS fecha,orden,id_parcela,titular,estado, \
-      l1,l2,m3,c,avg,stddev,averiado,inactivo,domicilia_bco,importe,notas FROM vista_lectura";
+      l1,l2,m3,c,avg,stddev,mediana,averiado,inactivo,domicilia_bco,importe,notas FROM vista_lectura";
     
     // Construir query según filtros
     const query = reset_filter 
@@ -440,7 +442,7 @@ class WaterService {
   async getWaterReadingsByDate(lectura) {
     try {
       const result = await pool.query(
-        "SELECT e,to_char(fecha,'DD-MM-YYYY') AS fecha,id_parcela,titular,estado,l1,l2,m3,avg,stddev,averiado,inactivo,domicilia_bco,importe,notas \
+        "SELECT e,to_char(fecha,'DD-MM-YYYY') AS fecha,id_parcela,titular,estado,l1,l2,m3,avg,stddev,mediana,averiado,inactivo,domicilia_bco,importe,notas \
         FROM vista_agua WHERE estado='C' AND fecha=$1 ORDER BY id_parcela",
         [lectura]
       );
