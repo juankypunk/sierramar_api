@@ -150,7 +150,7 @@ class WaterService {
       l2: row.l2 || '',
       m3: row.m3 || '',
       c: row.c || '',
-      avg: new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.avg) || '',
+      media: new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.avg) || '',
       mediana: new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.mediana) || '',
       stddev: new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.stddev) || '',
       importe: row.importe ? new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(row.importe) : null,
