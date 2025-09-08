@@ -248,6 +248,7 @@ class WaterService {
     // Transformar datos para CSV
     return result.rows.map(row => ({
         Parcela: row.id_parcela,
+        Titular: row.titular || '',
         Fecha: row.fecha ? new Date(row.fecha).toLocaleDateString() : '',
         'Lectura Anterior': row.l1 || '',
         'Lectura Actual': row.l2 || '',
@@ -256,7 +257,7 @@ class WaterService {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2 
           }).format(row.importe) : '' ,
-        Estado: row.estado,
+        Estado: row.estado  || '',
         Averiado: row.averiado ? 'Sí' : 'No',
         Inactivo: row.inactivo ? 'Sí' : 'No',
         Domiciliado: row.domicilia_bco ? 'Sí' : 'No',
