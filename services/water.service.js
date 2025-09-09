@@ -127,38 +127,53 @@ class WaterService {
     
   } 
 
-  async getCurrentReading(estado,averiado,inactivo,domicilia_bco,reset_filter) {
-    const query_unfiltered = "SELECT e,to_char(fecha,'DD-MM-YYYY') AS fecha,orden,id_parcela,titular,estado,\
-      l1,l2,m3,c,avg,stddev,mediana,averiado,inactivo,domicilia_bco,importe,notas \
-      FROM vista_lectura WHERE estado = ANY ($1) ORDER BY id_parcela";
-    const query_filtered = "SELECT e,to_char(fecha,'DD-MM-YYYY') AS fecha,orden,id_parcela,titular,estado,\
-      l1,l2,m3,c,avg,stddev,mediana,averiado,inactivo,domicilia_bco,importe,notas \
-      FROM vista_lectura WHERE estado = ANY ($1) AND averiado=$2 AND inactivo=$3 AND domicilia_bco=$4 ORDER BY id_parcela"; 
-    
-    const query = reset_filter ? query_unfiltered : query_filtered;
-    const params = reset_filter ? [estado] : [estado, averiado, inactivo, domicilia_bco];
-    // Ejecutar la consulta
-    const result = await pool.query(query, params);
-    return result.rows.map(row => ({
-      fecha: row.fecha ? row.fecha : '',
-      orden: row.orden,
-      estado: row.estado,
-      e: row.e,
-      id_parcela: row.id_parcela,
-      titular: row.titular || '',
-      l1: row.l1 || '',
-      l2: row.l2 || '',
-      m3: row.m3 || '',
-      c: row.c || '',
-      media: new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.avg) || '',
-      mediana: new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.mediana) || '',
-      stddev: new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.stddev) || '',
-      importe: row.importe ? new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(row.importe) : null,
-      notas: row.notas
-    }));
-    
+async getCurrentReading(estado, averiado, inactivo, domicilia_bco, reset_filter) {
+  let baseQuery = "SELECT e,to_char(fecha,'DD-MM-YYYY') AS fecha,orden,id_parcela,titular,estado,\
+    l1,l2,m3,c,avg,stddev,mediana,averiado,inactivo,domicilia_bco,importe,notas \
+    FROM vista_lectura WHERE estado = ANY ($1)";
+  let params = [estado];
+  let conditions = [];
+
+  if (!reset_filter) {
+    if (typeof averiado !== 'undefined') {
+      conditions.push("averiado = $" + (params.length + 1));
+      params.push(averiado);
+    }
+    if (typeof inactivo !== 'undefined') {
+      conditions.push("inactivo = $" + (params.length + 1));
+      params.push(inactivo);
+    }
+    if (typeof domicilia_bco !== 'undefined') {
+      conditions.push("domicilia_bco = $" + (params.length + 1));
+      params.push(domicilia_bco);
+    }
+    if (conditions.length > 0) {
+      baseQuery += " AND " + conditions.join(" AND ");
+    }
   }
 
+  baseQuery += " ORDER BY id_parcela";
+
+  // Ejecutar la consulta
+  const result = await pool.query(baseQuery, params);
+  return result.rows.map(row => ({
+    fecha: row.fecha ? row.fecha : '',
+    orden: row.orden,
+    estado: row.estado,
+    e: row.e,
+    id_parcela: row.id_parcela,
+    titular: row.titular || '',
+    l1: row.l1 || '',
+    l2: row.l2 || '',
+    m3: row.m3 || '',
+    c: row.c || '',
+    media: new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.avg) || '',
+    mediana: new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.mediana) || '',
+    stddev: new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.stddev) || '',
+    importe: row.importe ? new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(row.importe) : null,
+    notas: row.notas
+  }));
+}
   
   async getCurrentReadingRoute() {  
     const result = await pool.query("SELECT e,to_char(fecha,'DD-MM-YYYY') AS fecha,orden,id_parcela,titular,estado,l1,l2,m3,c,avg,stddev,mediana,averiado,inactivo,domicilia_bco,importe,notas FROM vista_lectura ORDER BY id_parcela", []);
