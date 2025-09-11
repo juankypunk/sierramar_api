@@ -207,10 +207,11 @@ exports.getWaterCurrentRemittances = async (req, res) => {
 exports.getWaterCurrentRemittancesVAT = async (req, res) => {
   try {
     const {selected_ids,sif_token} = req.body;
-    console.log('selected_ids:', selected_ids);
-    console.log('sif_token:', sif_token);
+    //console.log('selected_ids:', selected_ids);
+    //console.log('sif_token:', sif_token);
     const remittancesVAT = await WaterService.getWaterCurrentRemittancesVAT(selected_ids);
-    
+    //console.log('remittancesVAT:', remittancesVAT);
+
      // Obtener fecha actual en formato YYYY-MM-DD
     const today = new Date().toISOString().slice(0, 10);
 
@@ -263,10 +264,19 @@ exports.getWaterCurrentRemittancesVAT = async (req, res) => {
       };
     });
 
+    //console.log('remittancesVAT:', remittancesVAT);
+    // calcular el importe total de todas las lecturas enviadas
+    let datosEnviados = 0;
+    datosEnviados = remittancesVAT.length;
+    let totalEnviado = 0;
+    if (Array.isArray(remittancesVAT)) {
+      totalEnviado = remittancesVAT.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0);
+    }
+    //console.log('totalEnviado:', totalEnviado);
+
+    // Enviar datos al SIF
     const invoice_data = JSON.stringify({ invoices });
-
-    console.log('Enviando datos al SIF:', invoice_data);
-
+    //console.log('Enviando datos al SIF:', invoice_data);
     const sif_url= process.env.SIF_URL + '/api/invoices';
     const response = await fetch(sif_url, {
       method: 'POST',
@@ -278,11 +288,26 @@ exports.getWaterCurrentRemittancesVAT = async (req, res) => {
     });
 
     const sifResponse = await response.json();
-    console.log('SIF response:', sifResponse);
+    //console.log('SIF response:', sifResponse);
+    
+    
+    // Calcular el importe total de todas los datos recibidos en la respuesta del SIF
+    let datosRecibidos = 0;
+    let totalRecibido = 0;
+    datosRecibidos = sifResponse?.data?.items ? sifResponse.data.items.length : 0;
+    if (sifResponse?.data?.items && Array.isArray(sifResponse.data.items)) {
+      totalRecibido = sifResponse.data.items.reduce((sum, item) => sum + (item.total || 0), 0);
+    }
+
 
     res.json({
       remittances: remittancesVAT,
-      sifResponse
+      sifResponse,
+      selected_ids,
+      datosEnviados,
+      totalEnviado,
+      datosRecibidos,
+      totalRecibido
     });
 
   } catch (error) {
