@@ -152,7 +152,7 @@ async getResidentByName(chunk) {
 }
 
 async getResidentList() {
-    const result = await pool.query("SELECT * FROM vista_socios_contact ORDER BY id_parcela");
+    const result = await pool.query("SELECT * FROM vista_socios_contact c INNER JOIN vista_socios_bank b ON c.id_parcela = b.id_parcela ORDER BY b.id_parcela");
     if (result.rows.length === 0) {
       throw new Error('No se encontraron residentes');
     }
