@@ -462,7 +462,7 @@ async getCurrentReading(estado, averiado, inactivo, domicilia_bco, reset_filter)
       if (result.rowCount === 0) {
         throw new Error('No se pudo crear la remesa bancaria de agua');
       }
-      console.log('Remesa bancaria de agua creada con éxito:', result.rows);
+      //console.log('Remesa bancaria de agua creada con éxito:', result.rows);
       const dirPath = path.join(__dirname, '../downloads');
       const filePath = path.resolve(dirPath, `remesa_agua_sepa.dat`);
       //console.log('Remesa:',result.rows[0].remesa);
