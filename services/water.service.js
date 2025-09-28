@@ -20,9 +20,9 @@ class WaterService {
   async getWaterCurrentRemittancesById(id_parcela) {
     const result = await pool.query(
       "SELECT r_id_parcela AS id_parcela,to_char(r_fecha,'DD-MM-YYYY') AS fecha,r_titular_cc AS titular,r_bic AS bic,r_iban AS iban,r_l1 AS l1,r_l2 AS l2,r_m3 AS m3,r_t1 AS T1, r_t2 AS T2,r_pm3 AS PVPm3, \
-        r_f_a AS f_a,r_f_b AS f_b, r_f_c AS f_c,r_m3_a AS m3_t1,r_m3_b AS m3_t2,r_m3_c AS m3_t3,r_p_m3_a AS p_m3_a,r_p_m3_b AS p_m3_b,r_p_m3_c AS p_m3_c, \
+        r_f_a AS f_a,r_f_b AS f_b, r_f_c AS f_c,r_m3_a AS m3_t1,r_m3_b AS m3_t2,r_m3_c AS m3_t3,r_subtotal_a AS p_m3_a,r_subtotal_b AS p_m3_b,r_subtotal_c AS p_m3_c, \
         round(r_total,2) AS importe, r_domiciliado AS domiciliado,r_resumen AS concepto,to_char(r_ult_modif,'DD-MM-YYYY HH24:MI') AS ult_modif,r_user_modif AS user_modif\
-        FROM detalla_remesa_agua_residente() WHERE r_id_parcela = $1",
+        FROM detalla_remesa_agua() WHERE r_id_parcela = $1",
       [id_parcela]
     );
     return result.rows;
@@ -38,7 +38,7 @@ class WaterService {
 
   async getWaterReadingsById(id) {
     const result = await pool.query(
-      "SELECT e, id_parcela, to_char(fecha,'DD-MM-YYYY') AS lectura, estado, l1, l2, m3, domiciliado, averiado, notas, domicilia_bco FROM vista_agua WHERE id_parcela = $1 ORDER BY fecha DESC",
+      "SELECT e, id_parcela, to_char(fecha,'DD-MM-YYYY') AS lectura, estado, l1, l2, m3, t1, t2, domiciliado, averiado, notas, domicilia_bco FROM vista_agua WHERE id_parcela = $1 ORDER BY fecha DESC",
       [id]
     );
     return result.rows;
@@ -320,7 +320,7 @@ async getCurrentReading(estado, averiado, inactivo, domicilia_bco, reset_filter)
       }
       
       const query = `SELECT r_num_recibo AS id,r_id_parcela AS id_parcela,to_char(r_fecha,'DD-MM-YYYY') AS fecha,r_estado AS estado,r_titular_cc AS titular,r_bic AS bic,r_iban AS iban,r_l1 AS l1,r_l2 AS l2,r_m3 AS m3,r_t1 AS T1, r_t2 AS T2,r_pm3 AS PVPm3, \
-        r_f_a AS f_a,r_f_b AS f_b, r_f_c AS f_c,r_m3_a AS m3_t1,r_m3_b AS m3_t2,r_m3_c AS m3_t3,r_p_m3_a AS p_m3_a,r_p_m3_b AS p_m3_b,r_p_m3_c AS p_m3_c, \
+        r_f_a AS f_a,r_f_b AS f_b, r_f_c AS f_c,r_m3_a AS m3_t1,r_m3_b AS m3_t2,r_m3_c AS m3_t3,r_subtotal_a AS p_m3_a,r_subtotal_b AS p_m3_b,r_subtotal_c AS p_m3_c, \
         r_total AS importe,r_domiciliado AS domiciliado,r_resumen AS concepto,to_char(r_ult_modif,'DD-MM-YYYY HH24:MI') AS ult_modif,r_user_modif AS user_modif\
         FROM detalla_remesa_agua() ${where_condition} ${orden}`;
         const result = await pool.query(query);
@@ -369,7 +369,7 @@ async getCurrentReading(estado, averiado, inactivo, domicilia_bco, reset_filter)
 
   async getWaterCurrentRemittancesVAT(selected_ids) {
     try {
-      const query = `SELECT * FROM vista_agua_iva WHERE id = ANY ($1) AND m3 > 0 ORDER BY id_parcela`;
+      const query = `SELECT *,'CONSUMO DE AGUA PARCELA '||r_id_parcela||': Fecha de lectura: '||r_fecha||' Lectura anterior: '||r_l1||' Lectura actual: '||r_l2||' Total m3: '||r_m3 AS comments FROM detalla_remesa_agua() WHERE r_num_recibo = ANY ($1) AND r_m3 > 0 ORDER BY r_id_parcela`;
       const result = await pool.query(query, [selected_ids]);
       return result.rows; 
     } catch (error) {
@@ -396,7 +396,7 @@ async getCurrentReading(estado, averiado, inactivo, domicilia_bco, reset_filter)
         }
       }
       const query = `SELECT r_id_parcela AS id_parcela,to_char(r_fecha,'DD-MM-YYYY') AS fecha,r_estado AS estado,r_titular_cc AS titular,r_bic AS bic,r_iban AS iban,r_l1 AS l1,r_l2 AS l2,r_m3 AS m3,r_t1 AS T1, r_t2 AS T2,r_pm3 AS PVPm3, \
-        r_f_a AS f_a,r_f_b AS f_b, r_f_c AS f_c,r_m3_a AS m3_t1,r_m3_b AS m3_t2,r_m3_c AS m3_t3,r_p_m3_a AS p_m3_a,r_p_m3_b AS p_m3_b,r_p_m3_c AS p_m3_c, \
+        r_f_a AS f_a,r_f_b AS f_b, r_f_c AS f_c,r_m3_a AS m3_t1,r_m3_b AS m3_t2,r_m3_c AS m3_t3,r_subtotal_a AS p_m3_a,r_subtotal_b AS p_m3_b,r_subtotal_c AS p_m3_c, \
         r_total AS importe,r_domiciliado AS domiciliado,r_resumen AS concepto,to_char(r_ult_modif,'DD-MM-YYYY HH24:MI') AS ult_modif,r_user_modif AS user_modif\
         FROM detalla_remesa_agua() ${where_condition} ${orden}`;
         const result = await pool.query(query);
@@ -456,6 +456,65 @@ async getCurrentReading(estado, averiado, inactivo, domicilia_bco, reset_filter)
     }
   }
 
+  async getWaterRemittancesByDate(lectura) {
+    try {
+      //console.log('Obteniendo remesas de agua para la lectura:', lectura);
+      let params = [lectura];
+      const query = `SELECT r_num_recibo AS id,r_id_parcela AS id_parcela,to_char(r_fecha,'DD-MM-YYYY') AS fecha,r_estado AS estado,r_titular_cc AS titular,r_bic AS bic,r_iban AS iban,r_l1 AS l1,r_l2 AS l2,r_m3 AS m3,r_t1 AS T1, r_t2 AS T2,r_pm3 AS PVPm3, \
+        r_f_a AS f_a,r_f_b AS f_b, r_f_c AS f_c,r_m3_a AS m3_t1,r_m3_b AS m3_t2,r_m3_c AS m3_t3,r_subtotal_a AS p_m3_a,r_subtotal_b AS p_m3_b,r_subtotal_c AS p_m3_c, \
+        r_subtotal AS subtotal, r_impuesto AS impuesto, r_total AS importe,r_domiciliado AS domiciliado,r_resumen AS concepto,to_char(r_ult_modif,'DD-MM-YYYY HH24:MI') AS ult_modif,r_user_modif AS user_modif\
+        FROM detalla_remesa_agua_fecha($1) ORDER BY r_id_parcela`;
+        const result = await pool.query(query, params);
+
+      return result.rows.map(row => ({  
+        id: row.id,
+        id_parcela: row.id_parcela,
+        fecha: row.fecha,
+        estado: row.estado,
+        titular: row.titular || '',
+        bic: row.bic || '',
+        iban: row.iban || '',
+        l1: row.l1 || '',
+        l2: row.l2 || '',
+        m3: row.m3 || '',
+        t1: row.t1 || '',
+        t2: row.t2 || '',
+        f_a: row.f_a  || '',
+        f_b: row.f_b  || '',
+        f_c: row.f_c  || '',
+        m3_t1: row.m3_t1 || '',
+        m3_t2: row.m3_t2 || '',
+        m3_t3: row.m3_t3 || '',
+        pvpm3: row.pvpm3 || '',
+        p_m3_a: row.p_m3_a  || '',
+        p_m3_b: row.p_m3_b  || '',
+        p_m3_c: row.p_m3_c  || '',
+        subtotal: row.subtotal ? new Intl.NumberFormat('es-ES', {
+          style: 'currency',
+          currency: 'EUR'
+        }).format(row.subtotal) : '',
+        impuesto: row.impuesto ? new Intl.NumberFormat('es-ES', {
+          style: 'currency',
+          currency: 'EUR'
+        }).format(row.impuesto) : '',
+        importe: row.importe ? new Intl.NumberFormat('es-ES', {
+          style: 'currency',
+          currency: 'EUR'
+        }).format(row.importe) : '',
+        domiciliado: row.domiciliado ? new Intl.NumberFormat('es-ES', {
+          style: 'currency',
+          currency: 'EUR'
+        }).format(row.domiciliado) : '',
+        concepto: row.concepto || '',
+        ult_modif: row.ult_modif || '',
+        user_modif: row.user_modif || ''
+      }));
+    } catch (error) {
+      console.error('Error al obtener remesas de agua por fecha:', error);
+      throw error;
+    }
+  }
+
   async writeWaterBankRemittance(fecha_cobro) {
     try {
       const result = await pool.query("SELECT * FROM remesa_agua_sepa($1)",[fecha_cobro]);
@@ -476,9 +535,10 @@ async getCurrentReading(estado, averiado, inactivo, domicilia_bco, reset_filter)
 
   async getWaterReadingsByDate(lectura) {
     try {
+      //console.log('Obteniendo lecturas de agua para la fecha:', lectura);
       const result = await pool.query(
-        "SELECT e,to_char(fecha,'DD-MM-YYYY') AS fecha,id_parcela,titular,estado,l1,l2,m3,avg,stddev,mediana,averiado,inactivo,domicilia_bco,importe,notas \
-        FROM vista_agua WHERE estado='C' AND fecha=$1 ORDER BY id_parcela",
+        "SELECT e,to_char(fecha,'DD-MM-YYYY') AS fecha,id_parcela,titular,estado,l1,l2,m3,t1,t2,avg,stddev,mediana,averiado,inactivo,domicilia_bco,importe,notas \
+        FROM vista_agua WHERE estado<>'A' AND fecha=$1 ORDER BY id_parcela",
         [lectura]
       );
       return result.rows;

@@ -219,64 +219,69 @@ exports.getWaterCurrentRemittancesVAT = async (req, res) => {
     // Crear array de facturas con líneas solo para tramos con consumo
     const invoices = remittancesVAT.map(remittance => {
       const lines = [];
-      if (remittance.m3_1 > 0) {
+      if (remittance.r_m3_a > 0) {
         lines.push({
           product: "Consumo de agua en tramo T1 (1-125 m3)",
-          quantity: remittance.m3_1,
-          unit_price: remittance.pm3_t1,
-          tax_base: remittance.subtotal_t1,
-          tax_pctge: remittance.iva,
-          tax_amount: remittance.tax_amount_t1,
-          total: remittance.total_t1
+          quantity: parseInt(remittance.r_m3_a),
+          unit_price: parseFloat(remittance.r_pm3 * remittance.r_f_a,2),
+          tax_base: parseFloat(remittance.r_subtotal_a,2),
+          tax_pctge: parseInt(remittance.r_iva),
+          tax_amount: parseFloat(remittance.r_impuesto_a,2),
+          total: parseFloat(remittance.r_subtotal_a + remittance.r_impuesto_a,2)
         });
       }
-      if (remittance.m3_2 > 0) {
+      if (remittance.r_m3_b > 0) {
         lines.push({
           product: "Consumo de agua en tramo T2 (126-200 m3)",
-          quantity: remittance.m3_2,
-          unit_price: remittance.pm3_t2,
-          tax_base: remittance.subtotal_t2,
-          tax_pctge: remittance.iva,
-          tax_amount: remittance.tax_amount_t2,
-          total: remittance.total_t2
+          quantity: parseInt(remittance.r_m3_b),
+          unit_price: parseFloat(remittance.r_pm3 * remittance.r_f_b,2),
+          tax_base: parseFloat(remittance.r_subtotal_b,2),
+          tax_pctge: parseInt(remittance.r_iva),
+          tax_amount: parseFloat(remittance.r_impuesto_b,2),
+          total: parseFloat(remittance.r_subtotal_b + remittance.r_impuesto_b,2)
         });
       }
-      if (remittance.m3_3 > 0) {
+      if (remittance.r_m3_c > 0) {
         lines.push({
           product: "Consumo de agua en tramo T3 (+200 m3)",
-          quantity: remittance.m3_3,
-          unit_price: remittance.pm3_t3,
-          tax_base: remittance.subtotal_t3,
-          tax_pctge: remittance.iva,
-          tax_amount: remittance.tax_amount_t3,
-          total: remittance.total_t3
+          quantity: parseInt(remittance.r_m3_c),
+          unit_price: parseFloat(remittance.r_pm3 * remittance.r_f_c,2),
+          tax_base: parseFloat(remittance.r_subtotal_c,2),
+          tax_pctge: parseInt(remittance.r_iva),
+          tax_amount: parseFloat(remittance.r_impuesto_c,2),
+          total: parseFloat(remittance.r_subtotal_c + remittance.r_impuesto_c,2)
         });
       }
+      //console.log('lines:', lines);
       return {
         invoicenumber: "",
         emission: today,
         due: today,
-        customer_id: remittance.id_socio,
+        customer_id: remittance.r_id_socio,
         contractid: "",
-        total: remittance.total,
+        total: parseFloat(remittance.r_total, 2),
         comments: remittance.comments,
         lines
       };
     });
-
     //console.log('remittancesVAT:', remittancesVAT);
     // calcular el importe total de todas las lecturas enviadas
     let datosEnviados = 0;
     datosEnviados = remittancesVAT.length;
     let totalEnviado = 0;
     if (Array.isArray(remittancesVAT)) {
-      totalEnviado = remittancesVAT.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0);
+      /* remittancesVAT.forEach(item => {
+        console.log('item.total:', item.r_total, 'typeof:', typeof item.r_total);
+      });
+      */
+      totalEnviado = remittancesVAT.reduce((sum, item) => sum + (parseFloat(item.r_total) || 0), 0);
     }
-    //console.log('totalEnviado:', totalEnviado);
+    console.log('totalEnviado:', totalEnviado);
 
     // Enviar datos al SIF
     const invoice_data = JSON.stringify({ invoices });
     //console.log('Enviando datos al SIF:', invoice_data);
+    
     const sif_url= process.env.SIF_URL + '/api/invoices';
     const response = await fetch(sif_url, {
       method: 'POST',
@@ -289,8 +294,8 @@ exports.getWaterCurrentRemittancesVAT = async (req, res) => {
 
     const sifResponse = await response.json();
     //console.log('SIF response:', sifResponse);
-    
-    
+
+
     // Calcular el importe total de todas los datos recibidos en la respuesta del SIF
     let datosRecibidos = 0;
     let totalRecibido = 0;
@@ -371,7 +376,8 @@ exports.getWaterReadingsByDate = async (req, res) => {
   try {
     const { lectura } = req.body;
     const readings = await WaterService.getWaterReadingsByDate(lectura);
-    res.json(readings);
+    const remittances = await WaterService.getWaterRemittancesByDate(lectura);
+    res.json({readings,remittances});
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
