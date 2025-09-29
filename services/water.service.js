@@ -320,7 +320,7 @@ async getCurrentReading(estado, averiado, inactivo, domicilia_bco, reset_filter)
       }
       
       const query = `SELECT r_num_recibo AS id,r_id_parcela AS id_parcela,to_char(r_fecha,'DD-MM-YYYY') AS fecha,r_estado AS estado,r_titular_cc AS titular,r_bic AS bic,r_iban AS iban,r_l1 AS l1,r_l2 AS l2,r_m3 AS m3,r_t1 AS T1, r_t2 AS T2,r_pm3 AS PVPm3, \
-        r_f_a AS f_a,r_f_b AS f_b, r_f_c AS f_c,r_m3_a AS m3_t1,r_m3_b AS m3_t2,r_m3_c AS m3_t3,r_subtotal_a AS p_m3_a,r_subtotal_b AS p_m3_b,r_subtotal_c AS p_m3_c, \
+        r_iva AS iva,r_f_a AS f_a,r_f_b AS f_b, r_f_c AS f_c,r_m3_a AS m3_t1,r_m3_b AS m3_t2,r_m3_c AS m3_t3,r_subtotal_a AS p_m3_a,r_subtotal_b AS p_m3_b,r_subtotal_c AS p_m3_c, \
         r_subtotal AS subtotal, r_impuesto AS impuesto, r_total AS importe,r_domiciliado AS domiciliado,r_resumen AS concepto,to_char(r_ult_modif,'DD-MM-YYYY HH24:MI') AS ult_modif,r_user_modif AS user_modif\
         FROM detalla_remesa_agua() ${where_condition} ${orden}`;
         const result = await pool.query(query);
@@ -338,6 +338,7 @@ async getCurrentReading(estado, averiado, inactivo, domicilia_bco, reset_filter)
         m3: row.m3 || '',
         t1: row.t1 || '',
         t2: row.t2 || '',
+        iva: row.iva  || '',
         f_a: row.f_a  || '',
         f_b: row.f_b  || '',
         f_c: row.f_c  || '',
@@ -469,7 +470,7 @@ async getCurrentReading(estado, averiado, inactivo, domicilia_bco, reset_filter)
       //console.log('Obteniendo remesas de agua para la lectura:', lectura);
       let params = [lectura];
       const query = `SELECT r_num_recibo AS id,r_id_parcela AS id_parcela,to_char(r_fecha,'DD-MM-YYYY') AS fecha,r_estado AS estado,r_titular_cc AS titular,r_bic AS bic,r_iban AS iban,r_l1 AS l1,r_l2 AS l2,r_m3 AS m3,r_t1 AS T1, r_t2 AS T2,r_pm3 AS PVPm3, \
-        r_f_a AS f_a,r_f_b AS f_b, r_f_c AS f_c,r_m3_a AS m3_t1,r_m3_b AS m3_t2,r_m3_c AS m3_t3,r_subtotal_a AS p_m3_a,r_subtotal_b AS p_m3_b,r_subtotal_c AS p_m3_c, \
+        r_iva AS iva,r_f_a AS f_a,r_f_b AS f_b, r_f_c AS f_c,r_m3_a AS m3_t1,r_m3_b AS m3_t2,r_m3_c AS m3_t3,r_subtotal_a AS p_m3_a,r_subtotal_b AS p_m3_b,r_subtotal_c AS p_m3_c, \
         r_subtotal AS subtotal, r_impuesto AS impuesto, r_total AS importe,r_domiciliado AS domiciliado,r_resumen AS concepto,to_char(r_ult_modif,'DD-MM-YYYY HH24:MI') AS ult_modif,r_user_modif AS user_modif\
         FROM detalla_remesa_agua_fecha($1) ORDER BY r_id_parcela`;
         const result = await pool.query(query, params);
@@ -490,6 +491,7 @@ async getCurrentReading(estado, averiado, inactivo, domicilia_bco, reset_filter)
         f_a: row.f_a  || '',
         f_b: row.f_b  || '',
         f_c: row.f_c  || '',
+        iva: row.iva  || '',
         m3_t1: row.m3_t1 || '',
         m3_t2: row.m3_t2 || '',
         m3_t3: row.m3_t3 || '',
