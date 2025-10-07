@@ -324,9 +324,9 @@ async getResidentsCurrentDue(domicilia_bco, reset_filter) {
   }
  
   async getResidentsCurrentRemittanceCSV(domicilia_bco, reset_filter) {
-    const query_unfiltered = "SELECT id_parcela,titular,bic,iban,cuota,dto,domiciliado FROM vista_cuotas \
+    const query_unfiltered = "SELECT id_parcela,titular,bic,iban,cuota,dto,domiciliado,domicilia_bco FROM vista_cuotas \
       WHERE fecha=(SELECT MAX(fecha) FROM cuotas) ORDER BY id_parcela";
-    const query_filtered = "SELECT id_parcela,titular,bic,iban,cuota,dto,domiciliado FROM vista_cuotas \
+    const query_filtered = "SELECT id_parcela,titular,bic,iban,cuota,dto,domiciliado,domicilia_bco FROM vista_cuotas \
       WHERE fecha=(SELECT MAX(fecha) FROM cuotas ) AND domicilia_bco=$1 ORDER BY id_parcela";
     // Si reset_filter es true, usamos la consulta sin filtro
     const query = reset_filter ? query_unfiltered : query_filtered;
@@ -341,7 +341,7 @@ async getResidentsCurrentDue(domicilia_bco, reset_filter) {
       cuota: row.cuota ? new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(row.cuota) : null,
       dto: row.dto ? new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(row.dto) : null,
       domiciliado: row.domiciliado ? new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(row.domiciliado) : null,
-      domicilia_bco: row.domicilia_bco === 't' ? 'Sí' : 'No'
+      domicilia_bco: row.domicilia_bco ? 'Sí' : 'No'
     }));
   }
 
