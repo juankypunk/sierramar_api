@@ -21,7 +21,7 @@ class WaterService {
     const result = await pool.query(
       "SELECT r_id_parcela AS id_parcela,to_char(r_fecha,'DD-MM-YYYY') AS fecha,r_titular_cc AS titular,r_bic AS bic,r_iban AS iban,r_l1 AS l1,r_l2 AS l2,r_m3 AS m3,r_t1 AS T1, r_t2 AS T2,r_pm3 AS PVPm3, \
         r_f_a AS f_a,r_f_b AS f_b, r_f_c AS f_c,r_m3_a AS m3_t1,r_m3_b AS m3_t2,r_m3_c AS m3_t3,r_subtotal_a AS p_m3_a,r_subtotal_b AS p_m3_b,r_subtotal_c AS p_m3_c, \
-        round(r_subtotal,2) AS subtotal, round(r_impuesto,2) AS impuesto, round(r_total,2) AS importe, r_domiciliado AS domiciliado,r_resumen AS concepto,to_char(r_ult_modif,'DD-MM-YYYY HH24:MI') AS ult_modif,r_user_modif AS user_modif\
+        round(r_subtotal,2) AS subtotal, r_iva AS iva,round(r_impuesto,2) AS impuesto, round(r_total,2) AS importe, r_domiciliado AS domiciliado,r_resumen AS concepto,to_char(r_ult_modif,'DD-MM-YYYY HH24:MI') AS ult_modif,r_user_modif AS user_modif\
         FROM detalla_remesa_agua() WHERE r_id_parcela = $1",
       [id_parcela]
     );
