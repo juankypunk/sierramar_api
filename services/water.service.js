@@ -38,7 +38,11 @@ class WaterService {
 
   async getWaterReadingsById(id) {
     const result = await pool.query(
-      "SELECT e, id_parcela, to_char(fecha,'DD-MM-YYYY') AS lectura, estado, l1, l2, m3, t1, t2, domiciliado, averiado, notas, domicilia_bco FROM vista_agua WHERE id_parcela = $1 ORDER BY fecha DESC",
+      "SELECT e, id_parcela, to_char(fecha,'DD-MM-YYYY') AS lectura, estado, l1, l2, m3, t1, t2, domiciliado, averiado, notas, domicilia_bco,\
+      r_id_parcela AS id_parcela,to_char(r_fecha,'DD-MM-YYYY') AS fecha,r_estado AS estado,r_titular_cc AS titular,r_bic AS bic,r_iban AS iban,r_l1 AS l1,r_l2 AS l2,r_m3 AS m3,r_t1 AS T1, r_t2 AS T2,r_pm3 AS PVPm3, \
+        r_iva AS iva,r_f_a AS f_a,r_f_b AS f_b, r_f_c AS f_c,r_m3_a AS m3_t1,r_m3_b AS m3_t2,r_m3_c AS m3_t3,r_subtotal_a AS p_m3_a,r_subtotal_b AS p_m3_b,r_subtotal_c AS p_m3_c, \
+        r_subtotal AS subtotal, r_impuesto AS impuesto, r_total AS importe,r_domiciliado AS domiciliado,r_resumen AS concepto,to_char(r_ult_modif,'DD-MM-YYYY HH24:MI') AS ult_modif,r_user_modif AS user_modif \
+         FROM vista_agua v INNER JOIN detalla_remesa_agua_fecha(v.fecha) r ON r.r_id_parcela = v.id_parcela AND v.id_parcela=$1 order by v.fecha desc",
       [id]
     );
     return result.rows;
