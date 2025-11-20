@@ -126,14 +126,18 @@ exports.setWaterMeterById = async (req, res) => {
 
 exports.setWaterCurrentReadingById = async (req, res) => {
   const { id } = req.params;
-  const { l1,l2,m3,averiado,inactivo,notas,domicilia_bco,user_modif } = req.body;
+  let { estado,l1,l2,m3,averiado,inactivo,notas,domicilia_bco,user_modif } = req.body;
+  // si estado es 'C' mantener 'C', si no, hacer estado='R'
+  if (estado !== 'C') {
+    estado = 'R';
+  }
   // Validar que l2 y m3 son números
   if (typeof l2 !== 'number' || typeof m3 !== 'number') {
     throw new Error('l2 y m3 deben ser números');
   }
   if(l2 !== null){
     try {
-      const updatedReading = await WaterService.setWaterCurrentReadingById(id,l1,l2,m3,averiado,inactivo,notas,domicilia_bco,user_modif);
+      const updatedReading = await WaterService.setWaterCurrentReadingById(id,estado,l1,l2,m3,averiado,inactivo,notas,domicilia_bco,user_modif);
       res.json(updatedReading);
     } catch (error) {
       res.status(500).json({ error: error.message });

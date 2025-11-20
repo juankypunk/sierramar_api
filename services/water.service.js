@@ -265,14 +265,14 @@ async getCurrentReading(estado, averiado, inactivo, domicilia_bco, reset_filter)
   }
 
 
-  async setWaterCurrentReadingById(id,l1,l2,m3,averiado,inactivo,notas,domicilia_bco,user_modif) {
+  async setWaterCurrentReadingById(id,estado,l1,l2,m3,averiado,inactivo,notas,domicilia_bco,user_modif) {
     console.log('Actualizando lectura de agua para la parcela:', id);
-    console.log('Datos de la lectura:', { l2, m3, averiado, inactivo, notas, domicilia_bco, user_modif });
+    console.log('Datos de la lectura:', { id, estado, l2, m3, averiado, inactivo, notas, domicilia_bco, user_modif });
     
     const result = await pool.query(
-      "UPDATE agua SET l2=$2,m3=$3,averiado=$4,inactivo=$5,notas=$6,domicilia_bco=$7,user_modif=$8,ult_modif=CURRENT_TIMESTAMP,estado='R' \
+      "UPDATE agua SET l2=$2,m3=$3,averiado=$4,inactivo=$5,notas=$6,domicilia_bco=$7,user_modif=$8,ult_modif=CURRENT_TIMESTAMP,estado=$9 \
         WHERE id_parcela=$1 AND fecha = (SELECT MAX(fecha) FROM agua) RETURNING *",
-      [id,l2,m3,averiado,inactivo,notas,domicilia_bco,user_modif]
+      [id,l2,m3,averiado,inactivo,notas,domicilia_bco,user_modif,estado]
     );
     console.log('Resultado de la actualización:', result.rows);
     return result.rows;
