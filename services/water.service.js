@@ -382,7 +382,7 @@ async getCurrentReading(estado, averiado, inactivo, domicilia_bco, reset_filter)
 
   async getWaterCurrentRemittancesVAT(selected_ids) {
     try {
-      const query = `SELECT *,'CONSUMO DE AGUA PARCELA '||r_id_parcela||': Fecha de lectura: '||r_fecha||' Lectura anterior: '||r_l1||' Lectura actual: '||r_l2||' Total m3: '||r_m3 AS comments FROM detalla_remesa_agua() WHERE r_num_recibo = ANY ($1) AND r_m3 > 0 ORDER BY r_id_parcela`;
+      const query = `SELECT *,'CONSUMO DE AGUA PARCELA '||r_id_parcela||': Fecha de lectura: '||r_fecha||' Lectura anterior: '||r_l1||' Lectura actual: '||r_l2||' Total m3: '||r_m3 AS comments FROM detalla_remesa_agua() WHERE r_num_recibo = ANY ($1) ORDER BY r_id_parcela`;
       const result = await pool.query(query, [selected_ids]);
       return result.rows; 
     } catch (error) {
