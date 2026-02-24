@@ -31,6 +31,8 @@ const waterRoutes = require('./routes/water.routes')
 const residentRoutes = require('./routes/resident.routes')
 const employeeRoutes = require('./routes/employee.routes')
 const userRoutes = require('./routes/user.routes')
+const pushRoutes = require('./routes/push.routes')
+const webpushRoutes = require('./routes/webpush.routes')
 
 //const employeeRoutes = require('./routes/employee.routes')
 
@@ -47,6 +49,11 @@ app.use('/water', waterRoutes)
 app.use('/residents', residentRoutes)
 app.use('/employees', employeeRoutes)
 app.use('/users', userRoutes)
+
+// Ruta para guardar suscripciones push
+app.use('/push', pushRoutes)
+// Rutas para enviar notificaciones push
+app.use('/webpush', webpushRoutes)
 
 //app.use('/users', userRoutes)
 
