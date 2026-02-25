@@ -13,3 +13,27 @@ exports.saveSubscription = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.getSubscriptions = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const subscriptions = await pushService.getSubscriptionsByUserId(userId);
+    res.json(subscriptions);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.deleteSubscription = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { endpoint } = req.body;
+    if (!endpoint) {
+      return res.status(400).json({ error: 'Falta el campo endpoint.' });
+    }
+    await pushService.deleteSubscription(userId, endpoint);
+    res.json({ message: 'Suscripción eliminada correctamente.' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
