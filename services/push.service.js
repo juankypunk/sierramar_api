@@ -9,8 +9,12 @@ exports.saveSubscription = async ({ user_id, endpoint, keys_auth, keys_p256dh })
   await db.query(query, [user_id, endpoint, keys_auth, keys_p256dh]);
 };
 
-exports.getSubscriptionsByUserId = async (user_id) => {
-  const { rows } = await db.query('SELECT endpoint, keys_auth, keys_p256dh FROM user_push_subscriptions WHERE user_id = $1', [user_id]);
+exports.getSubscriptionsByUserIdAndEndpoint = async (user_id, endpoint) => {
+  if (!user_id || !endpoint) {
+    throw new Error('user_id y endpoint son requeridos');
+  }
+  console.log(`Obteniendo suscripciones para user_id: ${user_id} y endpoint: ${endpoint}`);
+  const { rows } = await db.query('SELECT endpoint, keys_auth, keys_p256dh FROM user_push_subscriptions WHERE user_id = $1 AND endpoint = $2', [user_id, endpoint]);
   return rows;
 };
 

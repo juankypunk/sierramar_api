@@ -17,7 +17,11 @@ exports.saveSubscription = async (req, res) => {
 exports.getSubscriptions = async (req, res) => {
   try {
     const userId = req.user.id;
-    const subscriptions = await pushService.getSubscriptionsByUserId(userId);
+    const {endpoint} = req.body;
+    if (!endpoint) {
+      return res.status(400).json({ error: 'Falta el campo endpoint.' });
+    }
+    const subscriptions = await pushService.getSubscriptionsByUserIdAndEndpoint(userId, endpoint);
     res.json(subscriptions);
   } catch (error) {
     res.status(500).json({ error: error.message });
