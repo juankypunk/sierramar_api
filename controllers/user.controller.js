@@ -11,6 +11,7 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 */
 
 const userService = require('../services/user.service')
+const emailService = require('../services/email.service')
 
 exports.getUserById = async (req, res) => {
   try {
@@ -33,4 +34,16 @@ exports.updateUserById = async (req, res) => {
   }
 }
 
-// ... resto de controladores
+exports.sendEmail = async (req, res) => {
+  try {
+    const mailOptions = req.body;
+    if (!mailOptions || !mailOptions.to || !mailOptions.subject || (!mailOptions.text && !mailOptions.html && !mailOptions.template)) {
+      return res.status(400).json({ error: 'Faltan opciones de correo requeridas (to, subject, text/html/template).' });
+    }
+
+    await emailService.sendGenericEmail(mailOptions);
+    res.json({ message: 'Correo enviado correctamente.' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

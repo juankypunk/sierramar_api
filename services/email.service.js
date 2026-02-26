@@ -104,6 +104,27 @@ class EmailService {
     });
 
   }
+
+  async sendGenericEmail(mailOptions) {
+    console.log('Enviando email genérico a:', mailOptions.to);
+
+    const options = {
+      ...mailOptions,
+      from: mailOptions.from || process.env.EMAIL_FROM,
+    };
+
+    return new Promise((resolve, reject) => {
+      this.transporter.sendMail(options, (err, info) => {
+        if (err) {
+          console.error('Error enviando email genérico:', err);
+          reject(new Error(`Error al enviar el correo: ${err.message}`));
+        } else {
+          console.log('Email genérico enviado:', info.response);
+          resolve(info.response);
+        }
+      });
+    });
+  }
 }
 
 module.exports = new EmailService();

@@ -28,6 +28,8 @@ router.get('/:id', authenticateJWT, userController.getUserById);
 
 router.put('/:id/update', authenticateJWT, userController.updateUserById);
 
+router.post('/email/send', authenticateJWT, checkRole('admin'), userController.sendEmail);
+
   
 router.get('/admin', authenticateJWT, checkRole('admin'), (req, res) => {
     res.json({ message: 'Ruta de administrador' });

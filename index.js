@@ -34,8 +34,6 @@ const userRoutes = require('./routes/user.routes')
 const pushRoutes = require('./routes/push.routes')
 const webpushRoutes = require('./routes/webpush.routes')
 
-//const employeeRoutes = require('./routes/employee.routes')
-
 const app = express()
 const port = process.env.PORT || 3030
 
@@ -49,13 +47,10 @@ app.use('/water', waterRoutes)
 app.use('/residents', residentRoutes)
 app.use('/employees', employeeRoutes)
 app.use('/users', userRoutes)
-
 // Ruta para guardar suscripciones push
 app.use('/push', pushRoutes)
 // Rutas para enviar notificaciones push
 app.use('/webpush', webpushRoutes)
-
-//app.use('/users', userRoutes)
 
 app.listen(port, () => {
   console.log(`App running on port ${port}.`)
