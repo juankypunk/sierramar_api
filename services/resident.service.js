@@ -223,7 +223,7 @@ async setResidentBankByParcelId(id_parcela,titular_cc_cuota,bic_cuota,iban_cuota
   }
 
 async cancelResidentBankMandateByParcelId(referencia_mandato) {
-    const result = await pool.query("UPDATE mandatos SET estado='cancelado' WHERE at_01 = $1 RETURNING *", [referencia_mandato]);
+    const result = await pool.query("UPDATE mandatos SET estado='cancelado',motivo_cancelacion='Cambio de datos bancarios' WHERE at_01 = $1 RETURNING *", [referencia_mandato]);
     if (!result || result.rowCount === 0) {
       throw new Error('No se pudo cancelar el mandato para la parcela especificada');
     }
