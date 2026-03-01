@@ -185,7 +185,9 @@ exports.setResidentBankByParcelId = async (req, res) => {
       fecha_mandato,
       fecha_mandato_agua,
       nif_titular_cc_agua,
-      referencia_mandato
+      referencia_mandato,
+      nif_titular,
+      cancel_mandate
     } = req.body
 
     // Asignar null si no hay valor
@@ -202,14 +204,19 @@ exports.setResidentBankByParcelId = async (req, res) => {
       iban_agua,
       fecha_mandato,
       fecha_mandato_agua,
-      nif_titular_cc_agua
+      nif_titular_cc_agua,
+      nif_titular
     );
     if (!result) {
       return res.status(404).json({ message: 'No se encontró la parcela o no se pudo actualizar el banco' });
     }
-    const cancelledMandate = await residentService.cancelResidentBankMandateByParcelId(referencia_mandato);
-
-    res.json({ result, cancelledMandate });
+    if (cancel_mandate) {
+      const cancelledMandate = await residentService.cancelResidentBankMandateByParcelId(referencia_mandato);
+      return res.json({ result, cancelledMandate });
+    }else {
+      return res.json({result, cancelledMandate: false});
+    }
+    
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
