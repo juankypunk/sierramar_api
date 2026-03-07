@@ -30,6 +30,7 @@ router.get('/:id/geteventslabel', authenticateJWT, employeeController.getEventsL
 router.post('/events', authenticateJWT, employeeController.getEvents)
 router.post('/:id/events', authenticateJWT, employeeController.getEventsForUser)
 router.post('/:id/holidays', authenticateJWT, employeeController.getHolidaysForUser)
+router.get('/byname', authenticateJWT, employeeController.getEmployees);
 router.get('/byname/:name', authenticateJWT, employeeController.getEmployeeByName);
 router.post('/:id/planning', authenticateJWT, employeeController.getPlanningForUser);
 router.post('/:id/scheduledhours', authenticateJWT, employeeController.getScheduledHoursForUser);
@@ -45,6 +46,10 @@ router.post('/:id/updatesigning', authenticateJWT, employeeController.updateSign
 //router.post('/:id/createsigning', authenticateJWT, employeeController.createSigningForUser);
 router.get('/:id/lastsigning', authenticateJWT, employeeController.getLastSigningForUser);
 router.post('/sign', authenticateJWT, employeeController.signUser);
+router.get('/incidents', authenticateJWT, employeeController.getIncidents);
+router.get('/:id/getincidents', authenticateJWT, employeeController.getIncidentsForUser);
+router.post('/:id/getincidents', authenticateJWT, employeeController.getIncidentsForUserRange);
+router.post('/:id/createstatement', authenticateJWT, employeeController.createStatementForUser);
 
   
 router.get('/admin', authenticateJWT, checkRole('admin'), (req, res) => {

@@ -33,12 +33,16 @@ const employeeRoutes = require('./routes/employee.routes')
 const userRoutes = require('./routes/user.routes')
 const pushRoutes = require('./routes/push.routes')
 const webpushRoutes = require('./routes/webpush.routes')
+const { startIncidentListener } = require('./services/pg-incident-listener.service')
 
 const app = express()
 const port = process.env.PORT || 3030
 
 // Configuración de la aplicación
 configureApp(app)
+
+// Listener de incidentes PostgreSQL
+startIncidentListener()
 
 // Rutas
 app.use(cookieParser())

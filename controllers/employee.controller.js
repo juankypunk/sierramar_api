@@ -10,6 +10,7 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 2. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+const e = require('express')
 const employeeService = require('../services/employee.service')
 
 exports.getPublicHolidays = async (req, res) => {
@@ -62,6 +63,15 @@ exports.getHolidaysForUser = async (req, res) => {
         res.status(500).json({ error: error.message })
     }
 } 
+
+exports.getEmployees = async (req, res) => {
+    try {
+        const employees = await employeeService.getEmployees()
+        res.json(employees)
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
 
 exports.getEmployeeByName = async (req, res) => {
     try {
@@ -214,6 +224,50 @@ exports.updateSigningForUser = async (req, res) => {
     }
 }
 
+exports.getIncidents = async (req, res) => {
+    try {
+        const fecha_inicio = req.query.fecha_inicio
+        const fecha_fin = req.query.fecha_fin
+        const id_user = req.query.id_user
+        const estado = req.query.estado
+        const incidents = await employeeService.getIncidents(fecha_inicio, fecha_fin, id_user, estado)
+        res.json(incidents)
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
 
+exports.getIncidentsForUser = async (req, res) => {
+    try {
+        const userId = req.params.id
+        const incidents = await employeeService.getIncidentsForUser(userId)
+        res.json(incidents)
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
 
+exports.getIncidentsForUserRange = async (req, res) => {
+    try {
+        const userId = req.params.id
+        const { range_start, range_end } = req.body
+        const incidents = await employeeService.getIncidentsForUserRange(userId, range_start, range_end)
+        res.json(incidents)
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
+
+exports.createStatementForUser = async (req, res) => {
+    try {
+        const userId = req.params.id
+        const { incident_id,proposed_entry, proposed_exit, statement_text, ip_address, user_agent } = req.body
+        const newStatement = await employeeService.createStatementForUser(userId,incident_id,proposed_entry,proposed_exit,statement_text,ip_address,user_agent)
+        const updatedIncident = await employeeService.changeStatusForIncident(incident_id, 'declarado');
+        res.json(newStatement)
+        //res.json({ message: 'Funcionalidad en desarrollo' })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
 // ... resto de controladores

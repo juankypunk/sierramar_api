@@ -72,6 +72,16 @@ class EmployeeService {
     return result.rows;
   }
 
+  async getEmployees() {
+    const result = await pool.query("SELECT id, name FROM users WHERE 'emp' = ANY (roles) ORDER BY name");
+    if (result.rows.length === 0) {
+      console.log('No se encontraron empleados');
+      return [];
+    }
+    return result.rows;
+  }
+
+
   async getEmployeeByName(name) {
     const chunk = '%'+ name + '%';
     const result = await pool.query("SELECT id, name FROM users WHERE 'emp' = ANY (roles) AND name ILIKE $1", [chunk]);
@@ -209,8 +219,6 @@ async signUser(id, latitud, longitud, locatedAt, accion) {
     return result.rows[0];
   }
 
-
-
   async updateSigningForUser(userId, momento, momento_updated) {
     const result = await pool.query("UPDATE fichajes SET momento = $3 WHERE id_user = $1 AND extract(epoch from momento) = $2 RETURNING *", 
       [userId, momento, momento_updated]);
@@ -220,8 +228,74 @@ async signUser(id, latitud, longitud, locatedAt, accion) {
     return result.rows[0];
   }
 
+  async getIncidents(fecha_inicio, fecha_fin, id_user, estado) {
+    const conditions = [];
+    const params = [];
+    let paramIndex = 1;
 
+    if (fecha_inicio && fecha_fin) {
+      conditions.push(`fecha BETWEEN $${paramIndex++} AND $${paramIndex++}`);
+      params.push(fecha_inicio, fecha_fin);
+    }
+    if (id_user) {
+      conditions.push(`id_user = $${paramIndex++}`);
+      params.push(id_user);
+    }
+    if (estado) {
+      conditions.push(`estado = $${paramIndex++}`);
+      params.push(estado);
+    }
+
+    let query = "SELECT * FROM vista_incidents";
+    if (conditions.length > 0) {
+      query += " WHERE " + conditions.join(" AND ");
+    }
+    query += " ORDER BY fecha DESC";
+
+    const result = await pool.query(query, params);
+    return result.rows;
+  } 
+
+  async getIncidentsForUser(userId) {
+    const result = await pool.query("SELECT i.id,i.id_user,i.fecha,i.rule_code,i.payload,i.is_active,i.status \
+      FROM incidents i WHERE i.id_user = $1 ORDER BY i.fecha DESC", [userId]);
+    if (result.rows.length === 0) {
+      console.log('No se encontraron incidentes de fichajes para el empleado');
+      return [];
+    }
+    return result.rows;
+  }
+
+  async changeStatusForIncident(incident_id, new_status) {
+    const result = await pool.query("UPDATE incidents SET status=$2 WHERE id=$1 RETURNING *", [incident_id, new_status]);
+    if (result.rows.length === 0) {
+      console.log('No se pudo actualizar el estado del incidente');
+    }
+    return result.rows[0];
+  }
+
+  async getIncidentsForUserRange(userId, range_start, range_end) {
+    console.log('getIncidentsForUserRange called with:', { userId, range_start, range_end });   
+    const result = await pool.query("SELECT id,id_user,to_char(fecha,'DD-MM-YYYY') AS fecha,rule_code AS incidencia, \
+        payload,is_active,status AS estado, to_char(detected_at,'DD-MM-YYYY HH24:MI') AS detectado\
+      FROM incidents WHERE id_user = $1 AND fecha BETWEEN $2 AND $3 AND is_active=true ORDER BY fecha DESC", [userId, range_start, range_end]);
+    if (result.rows.length === 0) {
+      console.log('No se encontraron incidentes de fichajes para el empleado en el rango especificado');
+      return [];
+    }
+    return result.rows;
+  }
+
+  async createStatementForUser(userId,incident_id,proposed_entry,proposed_exit,statement_text,ip_address,user_agent) {
+    const result = await pool.query("INSERT INTO incident_statements (id_user, incident_id, proposed_entry, proposed_exit, statement_text, ip_address, user_agent) \
+      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *", 
+      [userId, incident_id, proposed_entry, proposed_exit, statement_text, ip_address, user_agent ]);
+    if (result.rows.length === 0) {
+      console.log('No se pudo crear la declaración para el empleado');
+    }
+    return result.rows[0];
+  }
+
+  // ... resto de métodos del servicio
 }
-
-
 module.exports = new EmployeeService();
