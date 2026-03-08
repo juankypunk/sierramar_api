@@ -9,7 +9,6 @@ webpush.setVapidDetails(
 );
 
 exports.sendNotificationToUser = async (user_id, payload) => {
-  // Busca todas las suscripciones del usuario
   const { rows } = await db.query('SELECT endpoint, keys_auth, keys_p256dh FROM user_push_subscriptions WHERE user_id = $1', [user_id]);
   for (const sub of rows) {
     const subscription = {
@@ -22,8 +21,12 @@ exports.sendNotificationToUser = async (user_id, payload) => {
     try {
       await webpush.sendNotification(subscription, JSON.stringify(payload));
     } catch (err) {
-      // Si la suscripción no es válida, podrías eliminarla de la base de datos
-      console.error('Error enviando notificación:', err);
+      if (err.statusCode === 410) {
+        await db.query('DELETE FROM user_push_subscriptions WHERE endpoint = $1', [sub.endpoint]);
+        console.log(`Suscripción expirada eliminada: ${sub.endpoint}`);
+      } else {
+        console.error('Error enviando notificación:', err);
+      }
     }
   }
 };
@@ -41,7 +44,12 @@ exports.sendNotificationToAll = async (payload) => {
     try {
       await webpush.sendNotification(subscription, JSON.stringify(payload));
     } catch (err) {
-      console.error('Error enviando notificación:', err);
+      if (err.statusCode === 410) {
+        await db.query('DELETE FROM user_push_subscriptions WHERE endpoint = $1', [sub.endpoint]);
+        console.log(`Suscripción expirada eliminada: ${sub.endpoint}`);
+      } else {
+        console.error('Error enviando notificación:', err);
+      }
     }
   }
 };
