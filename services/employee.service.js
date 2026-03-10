@@ -277,7 +277,8 @@ async signUser(id, latitud, longitud, locatedAt, accion) {
   async getIncidentsForUserRange(userId, range_start, range_end) {
     console.log('getIncidentsForUserRange called with:', { userId, range_start, range_end });   
     const result = await pool.query("SELECT id,id_user,to_char(fecha,'DD-MM-YYYY') AS fecha,incidencia, \
-        entrada_real,salida_real,format_duration(duracion) AS duracion,estado,detectado \
+        entrada_real,salida_real,format_duration(duracion) AS duracion,estado,detectado, \
+        entrada_propuesta,salida_propuesta,declaracion \
       FROM vista_incidents WHERE id_user = $1 AND fecha BETWEEN $2 AND $3 ORDER BY fecha DESC", [userId, range_start, range_end]);
     if (result.rows.length === 0) {
       console.log('No se encontraron incidentes de fichajes para el empleado en el rango especificado');
