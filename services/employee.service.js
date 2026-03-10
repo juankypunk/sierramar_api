@@ -257,8 +257,8 @@ async signUser(id, latitud, longitud, locatedAt, accion) {
   } 
 
   async getIncidentsForUser(userId) {
-    const result = await pool.query("SELECT i.id,i.id_user,i.fecha,i.rule_code,i.payload,i.is_active,i.status \
-      FROM incidents i WHERE i.id_user = $1 ORDER BY i.fecha DESC", [userId]);
+    const result = await pool.query("SELECT * \
+      FROM vista_incidents i WHERE i.id_user = $1 ORDER BY i.fecha DESC", [userId]);
     if (result.rows.length === 0) {
       console.log('No se encontraron incidentes de fichajes para el empleado');
       return [];
@@ -276,9 +276,9 @@ async signUser(id, latitud, longitud, locatedAt, accion) {
 
   async getIncidentsForUserRange(userId, range_start, range_end) {
     console.log('getIncidentsForUserRange called with:', { userId, range_start, range_end });   
-    const result = await pool.query("SELECT id,id_user,to_char(fecha,'DD-MM-YYYY') AS fecha,rule_code AS incidencia, \
-        payload,is_active,status AS estado, to_char(detected_at,'DD-MM-YYYY HH24:MI') AS detectado\
-      FROM incidents WHERE id_user = $1 AND fecha BETWEEN $2 AND $3 AND is_active=true ORDER BY fecha DESC", [userId, range_start, range_end]);
+    const result = await pool.query("SELECT id,id_user,to_char(fecha,'DD-MM-YYYY') AS fecha,incidencia, \
+        entrada_real,salida_real,format_duration(duracion) AS duracion,estado,detectado \
+      FROM vista_incidents WHERE id_user = $1 AND fecha BETWEEN $2 AND $3 ORDER BY fecha DESC", [userId, range_start, range_end]);
     if (result.rows.length === 0) {
       console.log('No se encontraron incidentes de fichajes para el empleado en el rango especificado');
       return [];
