@@ -246,7 +246,11 @@ async signUser(id, latitud, longitud, locatedAt, accion) {
       params.push(estado);
     }
 
-    let query = "SELECT *, to_char(fecha,'DD-MM-YYYY') AS fecha_inc FROM vista_incidents";
+    let query = "SELECT id,id_user,empleado,to_char(fecha,'DD-MM-YYYY') AS fecha,incidencia, \
+        entrada_real,salida_real,format_duration(duracion) AS duracion,estado,detectado, \
+        entrada_propuesta,salida_propuesta,declaracion,declarado  \
+        FROM vista_incidents";
+
     if (conditions.length > 0) {
       query += " WHERE " + conditions.join(" AND ");
     }
