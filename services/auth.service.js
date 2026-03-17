@@ -128,6 +128,8 @@ class AuthService {
       'SELECT id FROM users WHERE email = $1',
       [email]
     );
+    console.log('result:',result.rows);
+    
     const user = result.rows[0];
     console.log('user en createPasswordResetToken:', user);
     if (!user) {

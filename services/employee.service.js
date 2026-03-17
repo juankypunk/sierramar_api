@@ -254,15 +254,13 @@ async signUser(id, latitud, longitud, locatedAt, accion) {
     if (conditions.length > 0) {
       query += " WHERE " + conditions.join(" AND ");
     }
-    query += " ORDER BY fecha DESC";
-
     const result = await pool.query(query, params);
     return result.rows;
   } 
 
   async getIncidentsForUser(userId) {
     const result = await pool.query("SELECT * \
-      FROM vista_incidents i WHERE i.id_user = $1 ORDER BY i.fecha DESC", [userId]);
+      FROM vista_incidents i WHERE i.id_user = $1", [userId]);
     if (result.rows.length === 0) {
       console.log('No se encontraron incidentes de fichajes para el empleado');
       return [];
@@ -283,7 +281,7 @@ async signUser(id, latitud, longitud, locatedAt, accion) {
     const result = await pool.query("SELECT id,id_user,to_char(fecha,'DD-MM-YYYY') AS fecha,incidencia, \
         entrada_real,salida_real,format_duration(duracion) AS duracion,estado,detectado, \
         entrada_propuesta,salida_propuesta,declaracion,declarado \
-      FROM vista_incidents WHERE id_user = $1 AND fecha BETWEEN $2 AND $3 ORDER BY fecha DESC", [userId, range_start, range_end]);
+      FROM vista_incidents WHERE id_user = $1 AND fecha BETWEEN $2 AND $3", [userId, range_start, range_end]);
     if (result.rows.length === 0) {
       console.log('No se encontraron incidentes de fichajes para el empleado en el rango especificado');
       return [];

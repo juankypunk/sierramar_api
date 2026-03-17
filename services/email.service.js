@@ -77,10 +77,9 @@ class EmailService {
   }
 
   async sendPasswordResetEmail(email, resetUrl) {
+    let logoUrl = process.env.LOGO_URL;
     console.log('Enviando email de restablecimiento de contraseña a:', email);
     console.log('URL de restablecimiento:', resetUrl);
-    // point to the template folder
-    
     
     const mailOptions = {
       from: process.env.EMAIL_FROM,
@@ -89,11 +88,10 @@ class EmailService {
       template: 'reset-password',
       context: {
         resetUrl: resetUrl,
+        logoUrl: logoUrl
       },
     };
     
-
-
     await this.transporter.sendMail(mailOptions,(err,info)=>{
       if(err){
         console.log(err)
@@ -105,12 +103,22 @@ class EmailService {
 
   }
 
-  async sendGenericEmail(mailOptions) {
-    console.log('Enviando email genérico a:', mailOptions.to);
+  
+async sendGenericEmail(mailOptions) {
+    let logoUrl = process.env.LOGO_URL;
+    console.log('Enviando email genérico a:', mailOptions);
+    console.log('URL del logo:', logoUrl);
 
     const options = {
-      ...mailOptions,
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      text: mailOptions.text,
       from: mailOptions.from || process.env.EMAIL_FROM,
+      template: 'generic-email',
+       context: {
+        message: mailOptions.html,
+        logoUrl: logoUrl
+       }
     };
 
     return new Promise((resolve, reject) => {
