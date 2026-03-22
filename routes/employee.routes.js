@@ -30,8 +30,8 @@ router.get('/:id/geteventslabel', authenticateJWT, employeeController.getEventsL
 router.post('/events', authenticateJWT, employeeController.getEvents)
 router.post('/:id/events', authenticateJWT, employeeController.getEventsForUser)
 router.post('/:id/holidays', authenticateJWT, employeeController.getHolidaysForUser)
-router.get('/byname', authenticateJWT, employeeController.getEmployees);
 router.get('/byname/:name', authenticateJWT, employeeController.getEmployeeByName);
+router.get('/getall', authenticateJWT, employeeController.getEmployees);
 router.post('/:id/planning', authenticateJWT, employeeController.getPlanningForUser);
 router.post('/:id/scheduledhours', authenticateJWT, employeeController.getScheduledHoursForUser);
 router.post('/:id/updateplanning', authenticateJWT, employeeController.updatePlanningForUser);
