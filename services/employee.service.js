@@ -233,6 +233,8 @@ async signUser(id, latitud, longitud, locatedAt, accion) {
     const params = [];
     let paramIndex = 1;
 
+    conditions.push("is_active=true"); // Solo incidentes activos
+    
     if (fecha_inicio && fecha_fin) {
       conditions.push(`fecha BETWEEN $${paramIndex++} AND $${paramIndex++}`);
       params.push(fecha_inicio, fecha_fin);
@@ -281,7 +283,7 @@ async signUser(id, latitud, longitud, locatedAt, accion) {
     const result = await pool.query("SELECT id,id_user,to_char(fecha,'DD-MM-YYYY') AS fecha,incidencia, \
         entrada_real,salida_real,format_duration(duracion) AS duracion,estado,detectado, \
         entrada_propuesta,salida_propuesta,declaracion,declarado \
-      FROM vista_incidents WHERE id_user = $1 AND fecha BETWEEN $2 AND $3", [userId, range_start, range_end]);
+      FROM vista_incidents WHERE id_user = $1 AND fecha BETWEEN $2 AND $3 AND is_active=true", [userId, range_start, range_end]);
     if (result.rows.length === 0) {
       console.log('No se encontraron incidentes de fichajes para el empleado en el rango especificado');
       return [];
