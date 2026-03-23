@@ -260,7 +260,7 @@ async signUser(id, latitud, longitud, locatedAt, accion) {
 
   async getIncidentsForUser(userId) {
     const result = await pool.query("SELECT * \
-      FROM vista_incidents i WHERE i.id_user = $1", [userId]);
+      FROM vista_incidents i WHERE i.id_user = $1 and i.estado='abierto' and i.is_active=true", [userId]);
     if (result.rows.length === 0) {
       console.log('No se encontraron incidentes de fichajes para el empleado');
       return [];
