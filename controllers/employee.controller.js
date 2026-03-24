@@ -258,11 +258,10 @@ exports.getIncidentsForUserRange = async (req, res) => {
     }
 }
 
-exports.createStatementForUser = async (req, res) => {
+exports.createStatementForIncident = async (req, res) => {
     try {
-        const userId = req.params.id
-        const { incident_id,proposed_entry, proposed_exit, statement_text, ip_address, user_agent } = req.body
-        const newStatement = await employeeService.createStatementForUser(userId,incident_id,proposed_entry,proposed_exit,statement_text,ip_address,user_agent)
+        const { id_user,incident_id,proposed_entry, proposed_exit, statement_text, ip_address, user_agent } = req.body
+        const newStatement = await employeeService.createStatementForIncident(id_user,incident_id,proposed_entry,proposed_exit,statement_text,ip_address,user_agent)
         const updatedIncident = await employeeService.changeStatusForIncident(incident_id, 'declarado');
         res.json(newStatement)
         //res.json({ message: 'Funcionalidad en desarrollo' })
@@ -270,4 +269,19 @@ exports.createStatementForUser = async (req, res) => {
         res.status(500).json({ error: error.message })
     }
 }
-// ... resto de controladores
+
+exports.createResolutionForIncident = async (req, res) => {
+    try {
+        const { incident_id,resolved_by,decision,resolution_comment } = req.body
+        const newResolution = await employeeService.createResolutionForIncident( incident_id, resolved_by, decision, resolution_comment)
+        const updatedIncident = await employeeService.changeStatusForIncident(incident_id, decision );
+        if(decision === 'aprobado') {
+            const incident = await employeeService.getIncidentById(incident_id)
+            const timeAdjustment = await employeeService.createTimeAdjustmentForIncident(incident_id, incident.id_user, incident.fecha, incident.entrada_real, incident.salida_real, incident.entrada_propuesta, incident.salida_propuesta, resolved_by)
+        }
+        res.json(newResolution)
+        //res.json({ message: 'Funcionalidad en desarrollo' })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}

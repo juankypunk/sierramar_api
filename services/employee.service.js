@@ -149,8 +149,8 @@ async deleteEventForUser(userId, id) {
 
 async getSigningsForUser(userId, range_start, range_end) {
     const result = await pool.query("SELECT to_char(entrada, 'DD-MM-YYYY') AS fecha, to_char(entrada,'HH24:MI') AS entrada, to_char(salida,'HH24:MI') AS salida, \
-      to_char(duracion,'HH24:MI') AS tiempo, lugar_entrada, lugar_salida \
-      FROM vista_fichajes WHERE id_user = $1 AND entrada BETWEEN $2 AND $3 ORDER BY fecha DESC", [userId, range_start, range_end]);
+      to_char(duracion,'HH24:MI') AS duración, incident_id AS incidencia \
+      FROM vista_trabajo_efectivo WHERE id_user = $1 AND entrada BETWEEN $2 AND $3 ORDER BY fecha DESC", [userId, range_start, range_end]);
     if (result.rows.length === 0) {
       console.log('No se encontraron registros de fichajes para el usuario');
       return [];
@@ -159,7 +159,7 @@ async getSigningsForUser(userId, range_start, range_end) {
   }
 
 async getWorkedHoursForUser(userId, range_start, range_end) {
-    const result = await pool.query("SELECT to_char(SUM(duracion),'HH24:MI') AS horas_trabajadas FROM vista_fichajes WHERE id_user=$1 AND entrada BETWEEN $2 AND $3",
+    const result = await pool.query("SELECT to_char(SUM(duracion),'HH24:MI') AS horas_trabajadas FROM vista_trabajo_efectivo WHERE id_user=$1 AND entrada BETWEEN $2 AND $3",
        [userId, range_start, range_end]);
     if (result.rows.length === 0) {
       console.log('No se encontraron horas trabajadas para el usuario');
@@ -250,7 +250,7 @@ async signUser(id, latitud, longitud, locatedAt, accion) {
 
     let query = "SELECT id,id_user,empleado,to_char(fecha,'DD-MM-YYYY') AS fecha,incidencia, \
         entrada_real,salida_real,format_duration(duracion) AS duracion,estado,detectado, \
-        entrada_propuesta,salida_propuesta,declaracion,declarado  \
+        entrada_propuesta,salida_propuesta,declaracion,declarado,resuelto_por,decision,comentario_resolucion,resuelto  \
         FROM vista_incidents";
 
     if (conditions.length > 0) {
@@ -260,6 +260,18 @@ async signUser(id, latitud, longitud, locatedAt, accion) {
     return result.rows;
   } 
 
+  async getIncidentById(incident_id) {
+    const result = await pool.query("SELECT id,id_user,empleado,to_char(fecha,'DD-MM-YYYY') AS fecha,incidencia, \
+      entrada_real,salida_real,format_duration(duracion) AS duracion,estado,detectado, \
+      entrada_propuesta,salida_propuesta,declaracion,declarado,resuelto_por,decision,comentario_resolucion,resuelto  \
+      FROM vista_incidents WHERE id=$1", [incident_id]);
+    if (result.rows.length === 0) {
+      console.log('No se encontró el incidente con ese ID');
+      return null;
+    }
+    return result.rows[0];
+  }
+  
   async getIncidentsForUser(userId) {
     const result = await pool.query("SELECT * \
       FROM vista_incidents i WHERE i.id_user = $1 and i.estado='abierto' and i.is_active=true", [userId]);
@@ -291,16 +303,35 @@ async signUser(id, latitud, longitud, locatedAt, accion) {
     return result.rows;
   }
 
-  async createStatementForUser(userId,incident_id,proposed_entry,proposed_exit,statement_text,ip_address,user_agent) {
+  async createStatementForIncident(id_user,incident_id,proposed_entry,proposed_exit,statement_text,ip_address,user_agent) {
     const result = await pool.query("INSERT INTO incident_statements (id_user, incident_id, proposed_entry, proposed_exit, statement_text, ip_address, user_agent) \
       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *", 
-      [userId, incident_id, proposed_entry, proposed_exit, statement_text, ip_address, user_agent ]);
+      [id_user, incident_id, proposed_entry, proposed_exit, statement_text, ip_address, user_agent ]);
     if (result.rows.length === 0) {
       console.log('No se pudo crear la declaración para el empleado');
     }
     return result.rows[0];
   }
 
-  // ... resto de métodos del servicio
+  async createResolutionForIncident(incident_id, resolved_by, decision, resolution_comment) {
+    const result = await pool.query("INSERT INTO incident_resolution (incident_id, resolved_by, decision, resolution_comment) \
+      VALUES ($1, $2, $3, $4) RETURNING *", 
+      [incident_id, resolved_by, decision, resolution_comment]);
+    if (result.rows.length === 0) {
+      console.log('No se pudo crear la resolución para el incidente');
+    }
+    return result.rows[0];
+  }
+
+  async createTimeAdjustmentForIncident(incident_id, id_user,fecha,original_entry, original_exit, adjusted_entry, adjusted_exit, aproved_by) {
+    const result = await pool.query("INSERT INTO incident_time_adjustments (incident_id, id_user, fecha, original_entry, original_exit, adjusted_entry, adjusted_exit, approved_by) \
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *", 
+      [incident_id, id_user, fecha, original_entry, original_exit, adjusted_entry, adjusted_exit, aproved_by]);
+    if (result.rows.length === 0) {
+      console.log('No se pudo crear el ajuste de tiempo para el incidente');
+    }
+    return result.rows[0];
+  }
+
 }
 module.exports = new EmployeeService();

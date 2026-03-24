@@ -46,10 +46,11 @@ router.post('/:id/updatesigning', authenticateJWT, employeeController.updateSign
 //router.post('/:id/createsigning', authenticateJWT, employeeController.createSigningForUser);
 router.get('/:id/lastsigning', authenticateJWT, employeeController.getLastSigningForUser);
 router.post('/sign', authenticateJWT, employeeController.signUser);
-router.get('/incidents', authenticateJWT, employeeController.getIncidents);
 router.get('/:id/getincidents', authenticateJWT, employeeController.getIncidentsForUser);
 router.post('/:id/getincidents', authenticateJWT, employeeController.getIncidentsForUserRange);
-router.post('/:id/createstatement', authenticateJWT, employeeController.createStatementForUser);
+router.get('/incidents', authenticateJWT, employeeController.getIncidents);
+router.post('/incidents/createstatement', authenticateJWT, employeeController.createStatementForIncident);
+router.post('/incidents/createresolution', authenticateJWT, employeeController.createResolutionForIncident);
 
   
 router.get('/admin', authenticateJWT, checkRole('admin'), (req, res) => {
