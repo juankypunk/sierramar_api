@@ -50,6 +50,7 @@ router.post('/sign', authenticateJWT, employeeController.signUser);
 router.get('/:id/getincidents', authenticateJWT, employeeController.getIncidentsForUser);
 router.post('/:id/getincidents', authenticateJWT, employeeController.getIncidentsForUserRange);
 router.get('/incidents', authenticateJWT, employeeController.getIncidents);
+router.post('/newincident', authenticateJWT, employeeController.createNewIncident);
 router.post('/incidents/createstatement', authenticateJWT, employeeController.createStatementForIncident);
 router.post('/incidents/createresolution', authenticateJWT, employeeController.createResolutionForIncident);
 

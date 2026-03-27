@@ -258,6 +258,21 @@ exports.getIncidentsForUserRange = async (req, res) => {
     }
 }
 
+exports.createNewIncident = async (req, res) => {
+    try {
+        const { id_user, proposed_entry, proposed_exit, statement_text } = req.body;
+        const ip_address = req.ip || req.headers['x-forwarded-for'] || '127.0.0.1';
+        const user_agent = req.get('User-Agent');
+        
+        const result = await employeeService.createManualIncident(
+            id_user, proposed_entry, proposed_exit, statement_text, ip_address, user_agent
+        );
+        res.status(201).json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
 exports.createStatementForIncident = async (req, res) => {
     try {
         const { id_user,incident_id,proposed_entry, proposed_exit, statement_text, ip_address, user_agent } = req.body

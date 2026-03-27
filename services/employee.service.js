@@ -313,6 +313,39 @@ async signUser(id, latitud, longitud, locatedAt, accion) {
     return result.rows[0];
   }
 
+  async createManualIncident(userId, proposed_entry, proposed_exit, statement_text, ip_address, user_agent) {
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      
+      const fecha = proposed_entry.split('T')[0];
+      
+      // 1. Crear el incidente con estado 'declarado' directamente
+      const incidentResult = await client.query(
+        "INSERT INTO incidents (rule_code, id_user, fecha, severity, status, payload) \
+         VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
+        ['MANUAL', userId, fecha, 1, 'declarado', JSON.stringify({ manual: true })]
+      );
+      
+      const incidentId = incidentResult.rows[0].id;
+      
+      // 2. Crear la declaración asociada
+      await client.query(
+        "INSERT INTO incident_statements (id_user, incident_id, proposed_entry, proposed_exit, statement_text, ip_address, user_agent) \
+         VALUES ($1, $2, $3, $4, $5, $6, $7)",
+        [userId, incidentId, proposed_entry, proposed_exit, statement_text, ip_address, user_agent]
+      );
+      
+      await client.query('COMMIT');
+      return { id: incidentId };
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
   async createResolutionForIncident(incident_id, resolved_by, decision, resolution_comment) {
     const result = await pool.query("INSERT INTO incident_resolution (incident_id, resolved_by, decision, resolution_comment) \
       VALUES ($1, $2, $3, $4) RETURNING *", 
