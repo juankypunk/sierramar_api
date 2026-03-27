@@ -285,3 +285,22 @@ exports.createResolutionForIncident = async (req, res) => {
         res.status(500).json({ error: error.message })
     }
 }
+
+exports.getHolidayCompensationHoursForUser = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const { range_start, range_end, label } = req.body;
+        const results = await employeeService.getHolidayCompensationHoursForUser(userId, range_start, range_end, label);
+        
+        // Accedemos a la primera fila del array devuelto por el servicio
+        const data = results[0];
+
+        res.json({ 
+            compensationHours: data.holiday_compensation_hours, 
+            compensableDaysCount: data.compensable_days_count,
+            holidayDates: data.holiday_dates 
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};

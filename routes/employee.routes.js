@@ -40,6 +40,7 @@ router.post('/:id/deleteevent', authenticateJWT, employeeController.deleteEventF
 router.post('/:id/getsignings', authenticateJWT, employeeController.getSigningsForUser);
 router.post('/:id/getworkedhours', authenticateJWT, employeeController.getWorkedHoursForUser);
 router.post('/:id/getextraworkedhours', authenticateJWT, employeeController.getExtraWorkedHoursForUser);
+router.post('/:id/getholidaycompensationhours', authenticateJWT, employeeController.getHolidayCompensationHoursForUser);
 router.get('/:id/getrawsignings', authenticateJWT, employeeController.getRawSigningsForUser);
 router.post('/:id/deletesigning', authenticateJWT, employeeController.deleteSigningForUser);
 router.post('/:id/updatesigning', authenticateJWT, employeeController.updateSigningForUser);

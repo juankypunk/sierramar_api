@@ -333,5 +333,22 @@ async signUser(id, latitud, longitud, locatedAt, accion) {
     return result.rows[0];
   }
 
+  // Nueva función para obtener horas de compensación por festivos que coinciden con días de descanso
+  async getHolidayCompensationHoursForUser(userId, range_start, range_end, label) {
+    const result = await pool.query(
+      "SELECT * FROM get_holiday_compensation_hours_for_user($1, $2, $3, $4)",
+      [userId, range_start, range_end, label]
+    );
+
+    if (result.rows.length === 0 || result.rows[0].compensable_days_count == 0) {
+      console.log('No se encontraron horas de compensación de festivos para el usuario.');
+      return [{ 
+        holiday_compensation_hours: '00:00',
+        compensable_days_count: 0,
+        holiday_dates: []
+      }];
+    }
+    return result.rows;
+  }
 }
 module.exports = new EmployeeService();
