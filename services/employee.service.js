@@ -149,7 +149,8 @@ async deleteEventForUser(userId, id) {
 
 async getSigningsForUser(userId, range_start, range_end) {
     const result = await pool.query("SELECT to_char(entrada, 'DD-MM-YYYY') AS fecha, to_char(entrada,'HH24:MI') AS entrada, to_char(salida,'HH24:MI') AS salida, \
-      to_char(duracion,'HH24:MI') AS duración, incident_id AS incidencia \
+      to_char(duracion,'HH24:MI') AS duración, incident_id, incidencia, \
+      estado_incidencia, comentario_resolucion, lugar_entrada, lugar_salida \
       FROM vista_trabajo_efectivo WHERE id_user = $1 AND entrada BETWEEN $2 AND $3 ORDER BY fecha DESC", [userId, range_start, range_end]);
     if (result.rows.length === 0) {
       console.log('No se encontraron registros de fichajes para el usuario');
