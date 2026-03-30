@@ -38,7 +38,7 @@ class EmployeeService {
   async getEvents(range_start, range_end, label) {
     const result = await pool.query("SELECT title, to_char(starts_at,'YYYY-MM-DD HH24:MI') AS start, to_char(ends_at,'YYYY-MM-DD HH24:MI') AS end, 'vig_' || user_id::text AS class, 'true' AS background \
               FROM recurring_events_all($1,$2) r WHERE r.starts_at::date NOT IN (SELECT fecha FROM publicholidays WHERE fecha BETWEEN $1 AND $2) \
-              AND r.label=$3 AND r.starts_at::date NOT IN (SELECT generate_recurrences('daily',fecha_inicio,fecha_fin) FROM absences h WHERE r.user_id=h.user_id AND fecha_inicio BETWEEN $1 AND $2)",
+              AND r.label=$3 AND r.starts_at::date NOT IN (SELECT generate_recurrences('daily',fecha_inicio,fecha_fin) FROM absences h WHERE r.user_id=h.id_user AND fecha_inicio BETWEEN $1 AND $2)",
                [range_start, range_end, label]);
     if (result.rows.length === 0) {
       throw new Error('No se encontraron eventos');
@@ -52,7 +52,7 @@ class EmployeeService {
               FROM recurring_events_for($1,$2,$3) \
               WHERE starts_at::date NOT IN (SELECT fecha FROM publicholidays WHERE fecha BETWEEN $2 AND $3) \
               AND label = $4 \
-              AND starts_at::date NOT IN (SELECT generate_recurrences('daily',fecha_inicio,fecha_fin) FROM absences WHERE user_id=$1 ) \
+              AND starts_at::date NOT IN (SELECT generate_recurrences('daily',fecha_inicio,fecha_fin) FROM absences WHERE id_user=$1 ) \
               ORDER BY starts_at",
                [user_id, range_start, range_end, label]);
     if (result.rows.length === 0) {
