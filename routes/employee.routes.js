@@ -29,7 +29,7 @@ router.get('/geteventslabel', authenticateJWT, employeeController.getEventsLabel
 router.get('/:id/geteventslabel', authenticateJWT, employeeController.getEventsLabel)
 router.post('/events', authenticateJWT, employeeController.getEvents)
 router.post('/:id/events', authenticateJWT, employeeController.getEventsForUser)
-router.post('/:id/holidays', authenticateJWT, employeeController.getHolidaysForUser)
+router.post('/:id/absences', authenticateJWT, employeeController.getAbsencesForUser)
 router.get('/byname/:name', authenticateJWT, employeeController.getEmployeeByName);
 router.get('/getall', authenticateJWT, employeeController.getEmployees);
 router.post('/:id/planning', authenticateJWT, employeeController.getPlanningForUser);

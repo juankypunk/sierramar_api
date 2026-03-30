@@ -53,17 +53,6 @@ exports.getEventsForUser = async (req, res) => {
     }
 }
 
-exports.getHolidaysForUser = async (req, res) => {
-    try {
-        const { range_start, range_end } = req.body
-        const userId = req.params.id
-        const holidays = await employeeService.getHolidaysForUser(userId, range_start, range_end)
-        res.json(holidays)
-    } catch (error) {
-        res.status(500).json({ error: error.message })
-    }
-} 
-
 exports.getEmployees = async (req, res) => {
     try {
         const employees = await employeeService.getEmployees()
@@ -319,3 +308,14 @@ exports.getHolidayCompensationHoursForUser = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+exports.getAbsencesForUser = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const { range_start, range_end } = req.body;
+        const absences = await employeeService.getAbsencesForUser(userId, range_start, range_end);
+        res.json(absences);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}

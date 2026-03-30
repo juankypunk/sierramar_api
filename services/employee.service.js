@@ -38,7 +38,7 @@ class EmployeeService {
   async getEvents(range_start, range_end, label) {
     const result = await pool.query("SELECT title, to_char(starts_at,'YYYY-MM-DD HH24:MI') AS start, to_char(ends_at,'YYYY-MM-DD HH24:MI') AS end, 'vig_' || user_id::text AS class, 'true' AS background \
               FROM recurring_events_all($1,$2) r WHERE r.starts_at::date NOT IN (SELECT fecha FROM publicholidays WHERE fecha BETWEEN $1 AND $2) \
-              AND r.label=$3 AND r.starts_at::date NOT IN (SELECT generate_recurrences('daily',fecha_inicio,fecha_fin) FROM holidays h WHERE r.user_id=h.user_id AND fecha_inicio BETWEEN $1 AND $2)",
+              AND r.label=$3 AND r.starts_at::date NOT IN (SELECT generate_recurrences('daily',fecha_inicio,fecha_fin) FROM absences h WHERE r.user_id=h.user_id AND fecha_inicio BETWEEN $1 AND $2)",
                [range_start, range_end, label]);
     if (result.rows.length === 0) {
       throw new Error('No se encontraron eventos');
@@ -52,7 +52,7 @@ class EmployeeService {
               FROM recurring_events_for($1,$2,$3) \
               WHERE starts_at::date NOT IN (SELECT fecha FROM publicholidays WHERE fecha BETWEEN $2 AND $3) \
               AND label = $4 \
-              AND starts_at::date NOT IN (SELECT generate_recurrences('daily',fecha_inicio,fecha_fin) FROM holidays WHERE user_id=$1 ) \
+              AND starts_at::date NOT IN (SELECT generate_recurrences('daily',fecha_inicio,fecha_fin) FROM absences WHERE user_id=$1 ) \
               ORDER BY starts_at",
                [user_id, range_start, range_end, label]);
     if (result.rows.length === 0) {
@@ -61,9 +61,9 @@ class EmployeeService {
     return result.rows;
   }
 
-  async getHolidaysForUser(user_id, range_start, range_end) {
+  async getAbsencesForUser(user_id, range_start, range_end) {
     const result = await pool.query("SELECT to_char(fecha_inicio,'YYYY-MM-DD') AS start, to_char(fecha_fin,'YYYY-MM-DD') AS end, title, class \
-        FROM holidays_scheduled_for($1,$2,$3) WHERE fecha_inicio NOT IN (SELECT fecha FROM publicholidays WHERE fecha BETWEEN $2 AND $3)", [user_id, range_start, range_end]);
+        FROM absences_scheduled_for($1,$2,$3) WHERE fecha_inicio NOT IN (SELECT fecha FROM publicholidays WHERE fecha BETWEEN $2 AND $3)", [user_id, range_start, range_end]);
     if (result.rows.length === 0) {
       //throw new Error('No se encontraron vacaciones para el usuario');
       console.log('No se encontraron vacaciones para el usuario');
@@ -110,7 +110,7 @@ async getScheduledHoursForUser(userId, range_start, range_end, label) {
     const result = await pool.query("SELECT to_char(SUM(duration),'HH24:MI') AS duration \
             FROM recurring_events_for($1,$2,$3) \
             WHERE starts_at::date NOT IN (SELECT fecha FROM publicholidays) \
-            AND starts_at::date NOT IN (SELECT generate_recurrences('daily',fecha_inicio,fecha_fin) FROM holidays WHERE user_id=$1 ) \
+            AND starts_at::date NOT IN (SELECT generate_recurrences('daily',fecha_inicio,fecha_fin) FROM absences WHERE user_id=$1 ) \
             AND label = $4", [userId, range_start, range_end, label]);
     if (result.rows.length === 0) {
       throw new Error('No se encontraron horas programadas para el usuario');
@@ -382,6 +382,17 @@ async signUser(id, latitud, longitud, locatedAt, accion) {
         holiday_dates: []
       }];
     }
+    return result.rows;
+  }
+
+  async getAbsencesForUser(userId, range_start, range_end) {
+    const result = await pool.query(
+      "SELECT id, to_char(fecha_inicio,'DD-MM-YYYY') AS start, to_char(fecha_fin,'DD-MM-YYYY') AS end, title, class \
+       FROM absences \
+       WHERE id_user = $1 AND (fecha_inicio, fecha_fin) OVERLAPS ($2::date, $3::date) \
+       ORDER BY fecha_inicio DESC",
+      [userId, range_start, range_end]
+    );
     return result.rows;
   }
 }
