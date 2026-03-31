@@ -314,6 +314,7 @@ async signUser(id, latitud, longitud, locatedAt, accion) {
     return result.rows[0];
   }
 
+  
   async createManualIncident(userId, proposed_entry, proposed_exit, statement_text, ip_address, user_agent) {
     const client = await pool.connect();
     try {
@@ -385,9 +386,50 @@ async signUser(id, latitud, longitud, locatedAt, accion) {
     return result.rows;
   }
 
+async getAbsences(fecha_inicio, fecha_fin, id_user, status) {
+    const conditions = [];
+    const params = [];
+    let paramIndex = 1;
+
+    if (fecha_inicio && fecha_fin) {
+      conditions.push(`(fecha_inicio, fecha_fin) OVERLAPS ($${paramIndex++}::date, $${paramIndex++}::date)`);
+      params.push(fecha_inicio, fecha_fin);
+    }
+    if (id_user) {
+      conditions.push(`id_user = $${paramIndex++}`);
+      params.push(id_user);
+    }
+    if (status) {
+      conditions.push(`status = $${paramIndex++}`);
+      params.push(status);
+    }
+
+    let query = "SELECT a.id, a.id_user, u.name AS empleado, to_char(a.fecha_inicio,'DD-MM-YYYY') AS inicio, \
+                 to_char(a.fecha_fin,'DD-MM-YYYY') AS fin, a.title AS tipo, a.status AS estado, a.class, a.comments \
+                 FROM absences a JOIN users u ON a.id_user = u.id";
+
+    if (conditions.length > 0) {
+      query += " WHERE " + conditions.join(" AND ");
+    }
+    query += " ORDER BY a.fecha_inicio DESC";
+
+    const result = await pool.query(query, params);
+    return result.rows;
+  }
+
+  async updateAbsenceStatus(absence_id, status, resolved_by) {
+    const result = await pool.query(
+      "UPDATE absences SET status = $2, resolved_by = $3, resolved_at = NOW() WHERE id = $1 RETURNING *",
+      [absence_id, status, resolved_by]
+    );
+    return result.rows[0];
+  }
+
+
+
   async getAbsencesForUser(userId, range_start, range_end) {
     const result = await pool.query(
-      "SELECT id, to_char(fecha_inicio,'DD-MM-YYYY') AS start, to_char(fecha_fin,'DD-MM-YYYY') AS end, title, class \
+      "SELECT id, to_char(fecha_inicio,'DD-MM-YYYY') AS start, to_char(fecha_fin,'DD-MM-YYYY') AS end, title, class, status \
        FROM absences \
        WHERE id_user = $1 AND (fecha_inicio, fecha_fin) OVERLAPS ($2::date, $3::date) \
        ORDER BY fecha_inicio DESC",

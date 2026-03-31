@@ -319,3 +319,23 @@ exports.getAbsencesForUser = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 }
+
+exports.getAbsences = async (req, res) => {
+    try {
+        const { fecha_inicio, fecha_fin, id_user, status } = req.query;
+        const absences = await employeeService.getAbsences(fecha_inicio, fecha_fin, id_user, status);
+        res.json(absences);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
+exports.resolveAbsence = async (req, res) => {
+    try {
+        const { absence_id, status, resolved_by } = req.body;
+        const result = await employeeService.updateAbsenceStatus(absence_id, status, resolved_by);
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
