@@ -48,7 +48,7 @@ class EmployeeService {
 
   async getEventsForUser(user_id, range_start, range_end, label) {
     const result = await pool.query("SELECT title, to_char(starts_at,'YYYY-MM-DD HH24:MI') AS start, to_char(ends_at,'YYYY-MM-DD HH24:MI') AS end,\
-             'vig_' || user_id::text AS class, 'true' AS background, label \
+             'vig_' || user_id::text AS class, 'true' AS background, label, duration \
               FROM recurring_events_for($1,$2,$3) \
               WHERE starts_at::date NOT IN (SELECT fecha FROM publicholidays WHERE fecha BETWEEN $2 AND $3) \
               AND label = $4 \
