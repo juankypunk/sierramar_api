@@ -107,11 +107,8 @@ class EmployeeService {
   }
 
 async getScheduledHoursForUser(userId, range_start, range_end, label) {
-    const result = await pool.query("SELECT to_char(SUM(duration),'HH24:MI') AS duration \
-            FROM recurring_events_for($1,$2,$3) \
-            WHERE starts_at::date NOT IN (SELECT fecha FROM publicholidays) \
-            AND starts_at::date NOT IN (SELECT generate_recurrences('daily',fecha_inicio,fecha_fin) FROM absences WHERE user_id=$1 ) \
-            AND label = $4", [userId, range_start, range_end, label]);
+    const result = await pool.query("SELECT to_char(SUM(duracion),'HH24:MI') AS duration \
+            FROM planned_scheduled_for($1,$2,$3)", [userId, range_start, range_end]);
     if (result.rows.length === 0) {
       throw new Error('No se encontraron horas programadas para el usuario');
     }
