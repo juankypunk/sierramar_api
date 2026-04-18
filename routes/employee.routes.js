@@ -50,6 +50,7 @@ router.post('/sign', authenticateJWT, employeeController.signUser);
 router.get('/:id/getincidents', authenticateJWT, employeeController.getIncidentsForUser);
 router.post('/:id/getincidents', authenticateJWT, employeeController.getIncidentsForUserRange);
 router.get('/incidents', authenticateJWT, employeeController.getIncidents);
+router.post('/:id/absences/request', authenticateJWT, employeeController.requestAbsence);
 router.get('/absences/all', authenticateJWT, checkRole('admin'), employeeController.getAbsences);
 router.post('/absences/resolve', authenticateJWT, checkRole('admin'), employeeController.resolveAbsence);
 router.post('/newincident', authenticateJWT, employeeController.createNewIncident);

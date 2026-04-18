@@ -309,6 +309,17 @@ exports.getHolidayCompensationHoursForUser = async (req, res) => {
     }
 };
 
+exports.requestAbsence = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const absenceData = req.body;
+        const result = await employeeService.requestAbsence(userId, absenceData);
+        res.status(201).json({ message: 'Solicitud de ausencia creada', data: result});
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
 exports.getAbsencesForUser = async (req, res) => {
     try {
         const userId = req.params.id;

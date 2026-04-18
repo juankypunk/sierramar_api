@@ -383,6 +383,15 @@ async signUser(id, latitud, longitud, locatedAt, accion) {
     return result.rows;
   }
 
+async requestAbsence(userId, absenceData) {
+  const { title, fecha_inicio, fecha_fin, comments } = absenceData;
+  const result = await pool.query(
+    "INSERT INTO absences (id_user, fecha_inicio, fecha_fin, title, comments, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+    [userId, fecha_inicio, fecha_fin, title, comments, 'pendiente']
+  );
+  return result.rows[0];
+}
+
 async getAbsences(fecha_inicio, fecha_fin, id_user, status) {
     const conditions = [];
     const params = [];
@@ -423,7 +432,6 @@ async getAbsences(fecha_inicio, fecha_fin, id_user, status) {
   }
 
 
-
   async getAbsencesForUser(userId, range_start, range_end) {
     const result = await pool.query(
       "SELECT id, to_char(fecha_inicio,'DD-MM-YYYY') AS start, to_char(fecha_fin,'DD-MM-YYYY') AS end, title, class, status \
@@ -434,5 +442,8 @@ async getAbsences(fecha_inicio, fecha_fin, id_user, status) {
     );
     return result.rows;
   }
+
+
+  
 }
 module.exports = new EmployeeService();
