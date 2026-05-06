@@ -384,10 +384,10 @@ async signUser(id, latitud, longitud, locatedAt, accion) {
   }
 
 async requestAbsence(userId, absenceData) {
-  const { title, fecha_inicio, fecha_fin, comments } = absenceData;
+  const { title, fecha_inicio, fecha_fin, comments} = absenceData;
   const result = await pool.query(
-    "INSERT INTO absences (id_user, fecha_inicio, fecha_fin, title, comments, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-    [userId, fecha_inicio, fecha_fin, title, comments, 'pendiente']
+    "INSERT INTO absences (id_user, fecha_inicio, fecha_fin, title, comments, status, class) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+    [userId, fecha_inicio, fecha_fin, title, comments, 'pendiente', title]
   );
   return result.rows[0];
 }
