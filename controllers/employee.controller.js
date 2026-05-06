@@ -324,8 +324,19 @@ exports.getAbsencesForUser = async (req, res) => {
     try {
         const userId = req.params.id;
         const { range_start, range_end } = req.body;
-        const absences = await employeeService.getAbsencesForUser(userId, range_start, range_end);
-        res.json(absences);
+        const absences_scheduled = await employeeService.getAbsencesForUser(userId, range_start, range_end);
+        res.json(absences_scheduled);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
+exports.getAbsencesRequestedForUser = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const { range_start, range_end } = req.body;
+        const absences_requested = await employeeService.getAbsencesRequestedForUser(userId, range_start, range_end);
+        res.json(absences_requested);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

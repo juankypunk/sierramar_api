@@ -30,6 +30,7 @@ router.get('/:id/geteventslabel', authenticateJWT, employeeController.getEventsL
 router.post('/events', authenticateJWT, employeeController.getEvents)
 router.post('/:id/events', authenticateJWT, employeeController.getEventsForUser)
 router.post('/:id/absences', authenticateJWT, employeeController.getAbsencesForUser)
+router.post('/:id/absences_requested', authenticateJWT, employeeController.getAbsencesRequestedForUser)
 router.get('/byname/:name', authenticateJWT, employeeController.getEmployeeByName);
 router.get('/getall', authenticateJWT, employeeController.getEmployees);
 router.post('/:id/planning', authenticateJWT, employeeController.getPlanningForUser);

@@ -432,7 +432,7 @@ async getAbsences(fecha_inicio, fecha_fin, id_user, status) {
   }
 
 
-  async getAbsencesForUser(userId, range_start, range_end) {
+  async getAbsencesRequestedForUser(userId, range_start, range_end) {
     const result = await pool.query(
       "SELECT id, to_char(fecha_inicio,'DD-MM-YYYY') AS start, to_char(fecha_fin,'DD-MM-YYYY') AS end, title, class, status \
        FROM absences \
