@@ -28,7 +28,7 @@ class EmployeeService {
   }
 
   async getEventsLabel() {
-    const result = await pool.query("SELECT DISTINCT label FROM events");
+    const result = await pool.query("SELECT DISTINCT label FROM events ORDER BY label");
     if (result.rows.length === 0) {
       throw new Error('No se encontró ninguna etiqueta de eventos');
     }
