@@ -218,7 +218,7 @@ async getCurrentReading(estado, averiado, inactivo, domicilia_bco, reset_filter)
       return result.rows.map(row => ({
           Parcela: row.id_parcela,
           Titular: row.titular || '',
-          Fecha: row.fecha ? new Date(row.fecha).toLocaleDateString() : '',
+          Fecha: row.fecha || '',
           'Lectura Anterior': row.l1 || '',
           'Lectura Actual': row.l2 || '',
           'Consumo (m³)': row.m3 || '',
@@ -418,7 +418,7 @@ async getCurrentReading(estado, averiado, inactivo, domicilia_bco, reset_filter)
       // Transformar datos para CSV     
       return result.rows.map(row => ({
         Parcela: row.id_parcela,
-        Fecha: row.fecha ? new Date(row.fecha).toLocaleDateString() : '',
+        Fecha: row.fecha || '',
         Estado: row.estado,
         Titular: row.titular || '',
         BIC: row.bic || '',
@@ -615,8 +615,8 @@ async getCurrentReading(estado, averiado, inactivo, domicilia_bco, reset_filter)
     return result.rows.map(row => ({
         Id_contador: row.id_contador,
         Lugar: row.lugar,
-        Fecha: row.fecha ? new Date(row.fecha).toLocaleDateString() : '',
-        'Lectura Anterior': row.l1 || '',
+        Fecha: row.fecha || '',
+        'Lectura Anterior': row.l1 || '',   
         'Lectura Actual': row.l2 || '',
         'Consumo (m³)': row.m3 || '',
         Averiado: row.averiado ? 'Sí' : 'No',
