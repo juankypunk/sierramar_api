@@ -227,39 +227,39 @@ exports.getWaterCurrentRemittancesVAT = async (req, res) => {
         lines.push({
           product: "Consumo de agua en tramo T1 (1-125 m3)",
           quantity: parseInt(remittance.r_m3_a),
-          unit_price: parseFloat(remittance.r_pm3 * remittance.r_f_a,2),
+          unit_price: parseFloat(remittance.r_pm3 * remittance.r_f_a).toFixed(3),
           qualification_operation: "S1",
           clave_regimen: "01",
-          tax_base: parseFloat(remittance.r_subtotal_a,2),
+          tax_base: parseFloat(remittance.r_subtotal_a).toFixed(3),
           tax_pctge: parseInt(remittance.r_iva),
-          tax_amount: parseFloat(remittance.r_impuesto_a,2),
-          total: parseFloat(remittance.r_subtotal_a + remittance.r_impuesto_a,2)
+          tax_amount: parseFloat(remittance.r_impuesto_a).toFixed(3),
+          total: parseFloat(remittance.r_subtotal_a + remittance.r_impuesto_a).toFixed(2)
         });
       }
       if (remittance.r_m3_b > 0) {
         lines.push({
           product: "Consumo de agua en tramo T2 (126-200 m3)",
           quantity: parseInt(remittance.r_m3_b),
-          unit_price: parseFloat(remittance.r_pm3 * remittance.r_f_b,2),
+          unit_price: parseFloat(remittance.r_pm3 * remittance.r_f_b).toFixed(3),
           qualification_operation: "S1",
           clave_regimen: "01",
-          tax_base: parseFloat(remittance.r_subtotal_b,2),
+          tax_base: parseFloat(remittance.r_subtotal_b).toFixed(3),
           tax_pctge: parseInt(remittance.r_iva),
-          tax_amount: parseFloat(remittance.r_impuesto_b,2),
-          total: parseFloat(remittance.r_subtotal_b + remittance.r_impuesto_b,2)
+          tax_amount: parseFloat(remittance.r_impuesto_b).toFixed(3),
+          total: parseFloat(remittance.r_subtotal_b + remittance.r_impuesto_b).toFixed(2)
         });
       }
       if (remittance.r_m3_c > 0) {
         lines.push({
           product: "Consumo de agua en tramo T3 (+200 m3)",
           quantity: parseInt(remittance.r_m3_c),
-          unit_price: parseFloat(remittance.r_pm3 * remittance.r_f_c,2),
+          unit_price: parseFloat(remittance.r_pm3 * remittance.r_f_c).toFixed(3),
           qualification_operation: "S1",
           clave_regimen: "01",
-          tax_base: parseFloat(remittance.r_subtotal_c,2),
+          tax_base: parseFloat(remittance.r_subtotal_c).toFixed(3),
           tax_pctge: parseInt(remittance.r_iva),
-          tax_amount: parseFloat(remittance.r_impuesto_c,2),
-          total: parseFloat(remittance.r_subtotal_c + remittance.r_impuesto_c,2)
+          tax_amount: parseFloat(remittance.r_impuesto_c).toFixed(3),
+          total: parseFloat(remittance.r_subtotal_c + remittance.r_impuesto_c).toFixed(2)
         });
       }
       //console.log('lines:', lines);
@@ -269,7 +269,7 @@ exports.getWaterCurrentRemittancesVAT = async (req, res) => {
         due: today,
         customer_id: remittance.r_id_socio,
         contractid: "",
-        total: parseFloat(remittance.r_total, 2),
+        total: parseFloat(remittance.r_total).toFixed(2),
         comments: remittance.comments,
         lines
       };
@@ -290,7 +290,7 @@ exports.getWaterCurrentRemittancesVAT = async (req, res) => {
 
     // Enviar datos al SIF
     const invoice_data = JSON.stringify({ invoices });
-    //console.log('Enviando datos al SIF:', invoice_data);
+    console.log('Enviando datos al SIF:', invoice_data);
     
     const sif_url= process.env.SIF_URL + '/api/invoices';
     const response = await fetch(sif_url, {
@@ -303,7 +303,7 @@ exports.getWaterCurrentRemittancesVAT = async (req, res) => {
     });
 
     const sifResponse = await response.json();
-    //console.log('SIF response:', sifResponse);
+    console.log('SIF response:', sifResponse);
 
 
     // Calcular el importe total de todas los datos recibidos en la respuesta del SIF
