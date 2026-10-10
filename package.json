@@ -20,5 +20,11 @@
     "pdfkit": "^0.16.0",
     "pg": "^8.14.1",
     "web-push": "^3.6.7"
+  },
+  "devDependencies": {
+    "jest": "^30.5.2"
+  },
+  "scripts": {
+    "test": "jest"
   }
 }
